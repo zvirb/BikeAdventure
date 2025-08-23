@@ -1,0 +1,76 @@
+name: BikeAdventure CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: true
+      
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.1
+      
+      - name: Build Project
+        run: |
+          Engine/Build/BatchFiles/RunUAT.bat BuildCookRun `
+            -project="${{ github.workspace }}/BikeAdventure.uproject" `
+            -platform=Win64 `
+            -configuration=Development `
+            -build -cook -pak -stage `
+            -archive="${{ github.workspace }}/Build/Windows"
+      
+      - name: Run Automated Tests
+        run: |
+          Engine/Binaries/Win64/UnrealEditor-Cmd.exe `
+            "${{ github.workspace }}/BikeAdventure.uproject" `
+            -ExecCmds="Automation RunTests BikeAdventure.Unit;Quit" `
+            -unattended -nullrhi
+      
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-build
+          path: Build/Windows/
+
+  build-linux:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/epicgames/unreal-engine:5.4
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Build Project
+        run: |
+          ./Engine/Build/BatchFiles/Linux/RunUAT.sh BuildCookRun \
+            -project="${GITHUB_WORKSPACE}/BikeAdventure.uproject" \
+            -platform=Linux \
+            -configuration=Development \
+            -build -cook -pak -stage
+      
+      - name: Run Tests
+        run: |
+          ./Engine/Binaries/Linux/UnrealEditor \
+            "${GITHUB_WORKSPACE}/BikeAdventure.uproject" \
+            -ExecCmds="Automation RunTests BikeAdventure.Unit;Quit" \
+            -unattended -nullrhi
+
+  deploy:
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy to Steam
+        env:
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
+        run: |
+          steamcmd +login $STEAM_USERNAME $STEAM_PASSWORD \
+            +run_app_build ../scripts/app_build.vdf \
+            +quit

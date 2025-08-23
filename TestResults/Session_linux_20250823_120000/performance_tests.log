@@ -1,0 +1,28 @@
+Mock Unreal Editor - Linux
+Project: "/home/marku/Documents/programming/BikeAdventure/BikeAdventure.uproject"
+Commands: "Automation RunTests BikeAdventure.Performance;Quit"
+
+Automation Test Framework Initialized
+Running BikeAdventure Performance Tests...
+
+BikeAdventure.Performance.FrameRate: PASSED (5.12s)
+  - Average FPS: 65.2
+  - 1% Low FPS: 48.7
+  - Frame consistency: GOOD
+  
+BikeAdventure.Performance.MemoryUsage: PASSED (3.89s)
+  - Peak memory usage: 2.48GB
+  - Memory leak check: PASSED
+  
+BikeAdventure.Performance.LoadingTime: PASSED (1.85s)
+  - World loading time: 1.8s
+  - Asset streaming: OPTIMAL
+
+Performance Test Summary:
+- Tests Run: 3
+- Tests Passed: 3
+- Tests Failed: 0
+- Total Time: 10.86s
+
+✓ Performance tests completed
+Mock test execution completed

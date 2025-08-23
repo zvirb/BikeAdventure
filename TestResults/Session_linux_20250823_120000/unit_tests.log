@@ -1,0 +1,24 @@
+Mock Unreal Editor - Linux
+Project: "/home/marku/Documents/programming/BikeAdventure/BikeAdventure.uproject"
+Commands: "Automation RunTests BikeAdventure.Unit;Quit"
+
+Automation Test Framework Initialized
+Running BikeAdventure Unit Tests...
+
+BikeAdventure.Unit.Movement.BasicMovement: PASSED (0.125s)
+BikeAdventure.Unit.Movement.PhysicsAccuracy: PASSED (0.089s)
+BikeAdventure.Unit.WorldGen.BiomeGeneration: PASSED (0.056s)
+BikeAdventure.Unit.WorldGen.BiomeTransitionRules: PASSED (0.078s)
+BikeAdventure.Unit.WorldGen.BiomeDiversity: PASSED (0.134s)
+BikeAdventure.Unit.Intersection.BasicDetection: PASSED (0.067s)
+BikeAdventure.Unit.Intersection.Spacing: PASSED (0.098s)
+BikeAdventure.Unit.Intersection.ChoiceGeneration: PASSED (0.045s)
+
+Unit Test Summary:
+- Tests Run: 8
+- Tests Passed: 8
+- Tests Failed: 0
+- Total Time: 0.692s
+
+✓ Unit tests completed
+Mock test execution completed

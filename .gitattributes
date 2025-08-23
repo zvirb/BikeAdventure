@@ -1,0 +1,236 @@
+# Git LFS Configuration for BikeAdventure UE5 Project
+# This file configures Git Large File Storage for Unreal Engine 5 assets
+
+# ==============================================
+# UNREAL ENGINE 5 CORE ASSETS
+# ==============================================
+
+# Unreal Engine asset files
+*.uasset filter=lfs diff=lfs merge=lfs -text
+*.umap filter=lfs diff=lfs merge=lfs -text
+*.upk filter=lfs diff=lfs merge=lfs -text
+*.udk filter=lfs diff=lfs merge=lfs -text
+
+# Blueprint compiled data
+*.u filter=lfs diff=lfs merge=lfs -text
+
+# ==============================================
+# 3D MODELS AND MESHES
+# ==============================================
+
+# FBX (Autodesk) - Primary 3D format for UE5
+*.fbx filter=lfs diff=lfs merge=lfs -text
+*.FBX filter=lfs diff=lfs merge=lfs -text
+
+# Other 3D formats
+*.3ds filter=lfs diff=lfs merge=lfs -text
+*.max filter=lfs diff=lfs merge=lfs -text
+*.ma filter=lfs diff=lfs merge=lfs -text
+*.mb filter=lfs diff=lfs merge=lfs -text
+*.obj filter=lfs diff=lfs merge=lfs -text
+*.dae filter=lfs diff=lfs merge=lfs -text
+*.blend filter=lfs diff=lfs merge=lfs -text
+
+# CAD files
+*.step filter=lfs diff=lfs merge=lfs -text
+*.iges filter=lfs diff=lfs merge=lfs -text
+
+# ==============================================
+# TEXTURES AND IMAGES
+# ==============================================
+
+# High-resolution textures
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.tga filter=lfs diff=lfs merge=lfs -text
+*.bmp filter=lfs diff=lfs merge=lfs -text
+*.tiff filter=lfs diff=lfs merge=lfs -text
+*.tif filter=lfs diff=lfs merge=lfs -text
+*.gif filter=lfs diff=lfs merge=lfs -text
+
+# Photoshop and design files
+*.psd filter=lfs diff=lfs merge=lfs -text
+*.psb filter=lfs diff=lfs merge=lfs -text
+*.xcf filter=lfs diff=lfs merge=lfs -text
+*.ai filter=lfs diff=lfs merge=lfs -text
+
+# HDR and environment maps
+*.hdr filter=lfs diff=lfs merge=lfs -text
+*.exr filter=lfs diff=lfs merge=lfs -text
+
+# DDS compressed textures
+*.dds filter=lfs diff=lfs merge=lfs -text
+
+# ==============================================
+# AUDIO FILES
+# ==============================================
+
+# Uncompressed audio
+*.wav filter=lfs diff=lfs merge=lfs -text
+*.aif filter=lfs diff=lfs merge=lfs -text
+*.aiff filter=lfs diff=lfs merge=lfs -text
+
+# Compressed audio
+*.mp3 filter=lfs diff=lfs merge=lfs -text
+*.ogg filter=lfs diff=lfs merge=lfs -text
+*.flac filter=lfs diff=lfs merge=lfs -text
+*.m4a filter=lfs diff=lfs merge=lfs -text
+
+# Professional audio formats
+*.rex filter=lfs diff=lfs merge=lfs -text
+*.rx2 filter=lfs diff=lfs merge=lfs -text
+
+# ==============================================
+# VIDEO FILES
+# ==============================================
+
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.mov filter=lfs diff=lfs merge=lfs -text
+*.avi filter=lfs diff=lfs merge=lfs -text
+*.wmv filter=lfs diff=lfs merge=lfs -text
+*.mkv filter=lfs diff=lfs merge=lfs -text
+*.webm filter=lfs diff=lfs merge=lfs -text
+
+# ==============================================
+# UNREAL ENGINE SPECIFIC FILES
+# ==============================================
+
+# Derived data cache (should be excluded, but adding for completeness)
+*.ddc filter=lfs diff=lfs merge=lfs -text
+
+# Unreal packages
+*.uplugin -text
+*.uproject -text
+
+# Config files should remain as text for proper merging
+Config/**/*.ini text
+DefaultEngine.ini text
+DefaultGame.ini text
+DefaultInput.ini text
+
+# ==============================================
+# BINARY EXECUTABLES AND LIBRARIES
+# ==============================================
+
+# Windows executables and libraries  
+*.exe filter=lfs diff=lfs merge=lfs -text
+*.dll filter=lfs diff=lfs merge=lfs -text
+*.lib filter=lfs diff=lfs merge=lfs -text
+*.pdb filter=lfs diff=lfs merge=lfs -text
+
+# Linux executables and libraries
+*.so filter=lfs diff=lfs merge=lfs -text
+*.a filter=lfs diff=lfs merge=lfs -text
+
+# Mac libraries
+*.dylib filter=lfs diff=lfs merge=lfs -text
+
+# ==============================================
+# FONTS
+# ==============================================
+
+*.ttf filter=lfs diff=lfs merge=lfs -text
+*.otf filter=lfs diff=lfs merge=lfs -text
+*.woff filter=lfs diff=lfs merge=lfs -text
+*.woff2 filter=lfs diff=lfs merge=lfs -text
+
+# ==============================================
+# ARCHIVES AND PACKAGES
+# ==============================================
+
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.7z filter=lfs diff=lfs merge=lfs -text
+*.rar filter=lfs diff=lfs merge=lfs -text
+*.tar filter=lfs diff=lfs merge=lfs -text
+*.gz filter=lfs diff=lfs merge=lfs -text
+
+# ==============================================
+# DOCUMENTATION FILES (Large)
+# ==============================================
+
+*.pdf filter=lfs diff=lfs merge=lfs -text
+*.doc filter=lfs diff=lfs merge=lfs -text
+*.docx filter=lfs diff=lfs merge=lfs -text
+
+# ==============================================
+# EXCLUSIONS - KEEP AS REGULAR GIT FILES
+# ==============================================
+
+# Source code files (keep as regular git files for proper diff/merge)
+*.cpp text
+*.h text
+*.hpp text
+*.c text
+*.cs text
+*.java text
+*.py text
+*.js text
+*.ts text
+*.html text
+*.css text
+*.scss text
+*.less text
+
+# Text-based config and data files
+*.json text
+*.xml text
+*.yaml text
+*.yml text
+*.ini text
+*.cfg text
+*.conf text
+*.txt text
+*.md text
+
+# Build and project files that should remain as text
+*.sln text
+*.vcxproj text
+*.vcxproj.filters text
+*.vcxproj.user text
+*.makefile text
+Makefile text
+*.cmake text
+CMakeLists.txt text
+
+# Version control files
+.gitignore text
+.gitattributes text
+
+# ==============================================
+# PERFORMANCE OPTIMIZATION SETTINGS
+# ==============================================
+
+# Set specific diff drivers for UE5 files
+*.uasset diff=lfs
+*.umap diff=lfs
+
+# Ensure proper line ending handling for cross-platform development
+* text=auto
+
+# Force specific line endings for shell scripts
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Force specific line endings for batch files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# ==============================================
+# GAME-SPECIFIC ASSET TYPES
+# ==============================================
+
+# Bike model files (game-specific)
+**/Bikes/** filter=lfs diff=lfs merge=lfs -text
+**/Environment/** filter=lfs diff=lfs merge=lfs -text
+**/Landscapes/** filter=lfs diff=lfs merge=lfs -text
+
+# Procedural generation assets
+**/ProceduralAssets/** filter=lfs diff=lfs merge=lfs -text
+**/BiomeData/** filter=lfs diff=lfs merge=lfs -text
+
+# Audio assets for bike adventure
+**/Audio/Ambient/** filter=lfs diff=lfs merge=lfs -text
+**/Audio/SFX/** filter=lfs diff=lfs merge=lfs -text
+**/Audio/Music/** filter=lfs diff=lfs merge=lfs -text

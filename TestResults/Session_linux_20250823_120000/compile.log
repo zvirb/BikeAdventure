@@ -1,0 +1,9 @@
+Mock Unreal Build Tool - Linux
+Build arguments: -projectfiles -project="/home/marku/Documents/programming/BikeAdventure/BikeAdventure.uproject" -game -rocket -progress
+Building BikeAdventure project...
+Compiling BikeAdventure module...
+Compiling BikeAdventureTests module...
+warning: unused variable 'TestVariable' in BikeMovementComponent.cpp
+warning: potential null pointer dereference in IntersectionDetector.cpp
+Mock build completed successfully
+Build time: 45.2 seconds

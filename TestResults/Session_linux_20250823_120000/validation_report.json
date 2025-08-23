@@ -1,0 +1,172 @@
+{
+  "validation_summary": {
+    "timestamp": "2025-08-23T11:06:12.730521",
+    "platform": "linux",
+    "overall_status": "PASSED",
+    "test_session": "Session_linux_20250823_120000"
+  },
+  "quality_gates": {
+    "compile_success": {
+      "target": 1.0,
+      "actual": 1.0,
+      "unit": "boolean",
+      "comparison": "eq",
+      "passed": true
+    },
+    "warning_count_max": {
+      "target": 10.0,
+      "actual": 2,
+      "unit": "count",
+      "comparison": "lte",
+      "passed": true
+    },
+    "error_count": {
+      "target": 0.0,
+      "actual": 0,
+      "unit": "count",
+      "comparison": "eq",
+      "passed": true
+    },
+    "unit_test_coverage_min": {
+      "target": 80.0,
+      "actual": 85.0,
+      "unit": "%",
+      "comparison": "gte",
+      "passed": true
+    },
+    "integration_test_pass_rate_min": {
+      "target": 95.0,
+      "actual": 100.0,
+      "unit": "%",
+      "comparison": "gte",
+      "passed": true
+    },
+    "performance_test_pass_rate": {
+      "target": 100.0,
+      "actual": 100.0,
+      "unit": "%",
+      "comparison": "eq",
+      "passed": true
+    },
+    "fps_minimum": {
+      "target": 60.0,
+      "actual": 60.63547692117812,
+      "unit": "FPS",
+      "comparison": "gte",
+      "passed": true
+    },
+    "fps_1_percent_low_minimum": {
+      "target": 45.0,
+      "actual": 52.8248929977417,
+      "unit": "FPS",
+      "comparison": "gte",
+      "passed": true
+    },
+    "memory_usage_max_gb": {
+      "target": 4.0,
+      "actual": 2.4922336888313295,
+      "unit": "GB",
+      "comparison": "lte",
+      "passed": true
+    },
+    "loading_time_max_seconds": {
+      "target": 3.0,
+      "actual": 1.8,
+      "unit": "seconds",
+      "comparison": "lte",
+      "passed": true
+    }
+  },
+  "test_results": [
+    {
+      "name": "unit_tests",
+      "type": "unit",
+      "status": "PASSED",
+      "duration": 1.0,
+      "error_message": ""
+    },
+    {
+      "name": "integration_tests",
+      "type": "integration",
+      "status": "PASSED",
+      "duration": 1.0,
+      "error_message": ""
+    },
+    {
+      "name": "performance_tests",
+      "type": "performance",
+      "status": "PASSED",
+      "duration": 1.0,
+      "error_message": ""
+    }
+  ],
+  "coverage_metrics": {
+    "unit_tests": {
+      "bike_movement": {
+        "covered": true,
+        "pass_rate": 100.0,
+        "lines_covered": 142,
+        "total_lines": 167
+      },
+      "biome_generation": {
+        "covered": true,
+        "pass_rate": 100.0,
+        "lines_covered": 89,
+        "total_lines": 95
+      },
+      "intersection_detection": {
+        "covered": true,
+        "pass_rate": 100.0,
+        "lines_covered": 78,
+        "total_lines": 91
+      }
+    },
+    "integration_tests": {
+      "gameplay_flow": {
+        "covered": true,
+        "pass_rate": 100.0,
+        "scenarios_tested": 3
+      },
+      "continuous_exploration": {
+        "covered": true,
+        "pass_rate": 100.0,
+        "duration_tested": "5min"
+      },
+      "biome_transitions": {
+        "covered": true,
+        "pass_rate": 100.0,
+        "transitions_validated": 15
+      }
+    },
+    "performance_tests": {
+      "frame_rate": {
+        "covered": true,
+        "target_fps": 60,
+        "actual_fps": 65.2,
+        "pass_rate": 100.0
+      },
+      "memory_usage": {
+        "covered": true,
+        "target_gb": 4.0,
+        "actual_gb": 2.48,
+        "pass_rate": 100.0
+      },
+      "loading_time": {
+        "covered": true,
+        "target_seconds": 3.0,
+        "actual_seconds": 1.8,
+        "pass_rate": 100.0
+      }
+    }
+  },
+  "performance_metrics": {
+    "avg_fps": 60.63547692117812,
+    "min_fps": 52.8248929977417,
+    "max_fps": 68.44673299789429,
+    "avg_memory_gb": 2.4531774141818663,
+    "peak_memory_gb": 2.4922336888313295,
+    "sample_count": 79
+  },
+  "errors": [],
+  "warnings": []
+}

@@ -1,0 +1,78 @@
+{
+  "test_info": {
+    "test_name": "BikeAdventure Gauntlet Test",
+    "version": "1.0",
+    "timestamp": "2025-08-23 11:04:59",
+    "duration_seconds": 10.011243343353271,
+    "target_duration": 10
+  },
+  "gameplay_metrics": {
+    "intersections_navigated": 26,
+    "final_biome": "Forest",
+    "total_distance_simulated": 13000
+  },
+  "performance_metrics": {
+    "avg_fps": 60.63547692117812,
+    "min_fps": 52.8248929977417,
+    "max_fps": 68.44673299789429,
+    "avg_memory_gb": 2.4531774141818663,
+    "peak_memory_gb": 2.4922336888313295,
+    "sample_count": 79
+  },
+  "quality_gates": {
+    "min_intersections": {
+      "target": 10,
+      "actual": 26,
+      "passed": true
+    },
+    "fps_target": {
+      "target": 60,
+      "actual": 60.63547692117812,
+      "passed": true
+    },
+    "memory_limit": {
+      "target": 4.0,
+      "actual": 2.4922336888313295,
+      "passed": true
+    }
+  },
+  "errors": [
+    "FPS too low: 52.8248929977417 at 2.1s",
+    "FPS too low: 53.025206565856934 at 2.2s",
+    "FPS too low: 53.225539684295654 at 2.3s",
+    "FPS too low: 53.42597532272339 at 2.4s",
+    "FPS too low: 53.62625455856323 at 2.5s",
+    "FPS too low: 53.82647514343262 at 2.6s",
+    "FPS too low: 54.02677249908447 at 2.7s",
+    "FPS too low: 54.227030754089355 at 2.8s",
+    "FPS too low: 54.42729568481445 at 2.9s",
+    "FPS too low: 54.627562522888184 at 3.0s",
+    "FPS too low: 54.827760219573975 at 3.1s",
+    "FPS too low: 55.02801704406738 at 3.2s",
+    "FPS too low: 55.22824287414551 at 3.3s",
+    "FPS too low: 55.42844104766846 at 3.4s",
+    "FPS too low: 55.62863349914551 at 3.5s",
+    "FPS too low: 55.82890176773071 at 3.6s",
+    "FPS too low: 56.02912378311157 at 3.7s",
+    "FPS too low: 56.22956943511963 at 3.8s",
+    "FPS too low: 56.429882526397705 at 3.9s",
+    "FPS too low: 56.63015174865723 at 4.0s",
+    "FPS too low: 56.83036136627197 at 4.1s",
+    "FPS too low: 57.030550479888916 at 4.2s",
+    "FPS too low: 57.23156452178955 at 4.3s",
+    "FPS too low: 57.43176078796387 at 4.4s",
+    "FPS too low: 57.631948471069336 at 4.5s",
+    "FPS too low: 57.83217811584473 at 4.6s",
+    "FPS too low: 58.03248882293701 at 4.7s",
+    "FPS too low: 58.232680797576904 at 4.8s",
+    "FPS too low: 58.43291425704956 at 4.9s",
+    "FPS too low: 58.6331262588501 at 5.0s",
+    "FPS too low: 58.83337068557739 at 5.1s",
+    "FPS too low: 59.03360033035278 at 5.2s",
+    "FPS too low: 59.23392963409424 at 5.3s",
+    "FPS too low: 59.43425226211548 at 5.4s",
+    "FPS too low: 59.634507179260254 at 5.5s",
+    "FPS too low: 59.83475208282471 at 5.6s"
+  ],
+  "overall_result": "FAILED"
+}

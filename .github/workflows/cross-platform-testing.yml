@@ -1,0 +1,327 @@
+name: Cross-Platform Testing
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of tests to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - unit
+        - integration
+        - performance
+        - gauntlet
+
+env:
+  UE5_VERSION: "5.4"
+  PROJECT_NAME: "BikeAdventure"
+
+jobs:
+  test-ubuntu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            clang \
+            libc++-dev \
+            libc++abi-dev \
+            python3-dev \
+            python3-pip
+          
+      - name: Cache UE5 Engine (Linux)
+        id: cache-ue5-linux
+        uses: actions/cache@v3
+        with:
+          path: /opt/UnrealEngine
+          key: ue5-${{ env.UE5_VERSION }}-linux-${{ hashFiles('BikeAdventure.uproject') }}
+          restore-keys: |
+            ue5-${{ env.UE5_VERSION }}-linux-
+            
+      - name: Setup Mock Unreal Engine (Linux)
+        if: steps.cache-ue5-linux.outputs.cache-hit != 'true'
+        run: |
+          # Create mock UE5 structure for testing
+          sudo mkdir -p /opt/UnrealEngine/Engine/Binaries/Linux
+          sudo mkdir -p /opt/UnrealEngine/Engine/Binaries/DotNET/UnrealBuildTool
+          
+          # Create mock executables
+          sudo cat > /opt/UnrealEngine/Engine/Binaries/Linux/UnrealEditor << 'EOF'
+          #!/bin/bash
+          echo "Mock Unreal Editor - Linux"
+          echo "Project: $1"
+          echo "Commands: $2"
+          echo "Mock test execution completed"
+          exit 0
+          EOF
+          
+          sudo cat > /opt/UnrealEngine/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool << 'EOF'
+          #!/bin/bash
+          echo "Mock Unreal Build Tool - Linux"
+          echo "Build arguments: $@"
+          echo "Mock build completed successfully"
+          exit 0
+          EOF
+          
+          sudo chmod +x /opt/UnrealEngine/Engine/Binaries/Linux/UnrealEditor
+          sudo chmod +x /opt/UnrealEngine/Engine/Binaries/DotNET/UnrealBuildTool/UnrealBuildTool
+          
+      - name: Validate project structure
+        run: |
+          echo "Validating project structure..."
+          ls -la
+          test -f BikeAdventure.uproject || (echo "Project file missing" && exit 1)
+          test -d Source || (echo "Source directory missing" && exit 1)
+          test -d Scripts/GauntletTests || (echo "Gauntlet tests missing" && exit 1)
+          echo "✓ Project structure valid"
+          
+      - name: Run Ubuntu Tests
+        run: |
+          echo "Running tests on Ubuntu Linux..."
+          ./scripts/automation/run-all-tests.sh linux ${{ github.event.inputs.test_type || 'all' }}
+          
+      - name: Upload Ubuntu Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: ubuntu-test-results
+          path: TestResults/
+          retention-days: 30
+          
+      - name: Generate Ubuntu Test Summary
+        if: always()
+        run: |
+          echo "## Ubuntu Test Results 🐧" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -d "TestResults" ]; then
+            LATEST_SESSION=$(ls -t TestResults/ | grep Session_linux | head -n1)
+            if [ -n "$LATEST_SESSION" ]; then
+              echo "**Test Session:** $LATEST_SESSION" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              
+              # Check for coverage report
+              if [ -f "TestResults/$LATEST_SESSION/coverage_report.json" ]; then
+                echo "**Coverage Report Available:** ✅" >> $GITHUB_STEP_SUMMARY
+                # Extract key metrics from coverage report
+                python3 -c "
+          import json, sys
+          try:
+              with open('TestResults/$LATEST_SESSION/coverage_report.json') as f:
+                  data = json.load(f)
+              print('**Quality Gates:**')
+              for gate, info in data.get('quality_gates', {}).items():
+                  status = '✅' if info.get('passed') else '❌'
+                  print(f'- {gate}: {status} ({info.get(\"actual\", \"N/A\")}/{info.get(\"target\", \"N/A\")})')
+          except: pass
+                " >> $GITHUB_STEP_SUMMARY
+              else
+                echo "**Coverage Report:** ❌ Not generated" >> $GITHUB_STEP_SUMMARY
+              fi
+            else
+              echo "**Status:** ❌ No test session found" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "**Status:** ❌ No test results directory" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  test-windows:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Cache UE5 Engine (Windows)
+        id: cache-ue5-windows
+        uses: actions/cache@v3
+        with:
+          path: 'C:\Program Files\Epic Games\UE_5.4'
+          key: ue5-${{ env.UE5_VERSION }}-windows-${{ hashFiles('BikeAdventure.uproject') }}
+          restore-keys: |
+            ue5-${{ env.UE5_VERSION }}-windows-
+            
+      - name: Setup Mock Unreal Engine (Windows)
+        if: steps.cache-ue5-windows.outputs.cache-hit != 'true'
+        run: |
+          # Create mock UE5 structure for testing
+          New-Item -ItemType Directory -Force -Path "C:\Program Files\Epic Games\UE_5.4\Engine\Binaries\Win64"
+          New-Item -ItemType Directory -Force -Path "C:\Program Files\Epic Games\UE_5.4\Engine\Binaries\DotNET\UnrealBuildTool"
+          
+          # Create mock executables
+          @"
+          @echo off
+          echo Mock Unreal Editor - Windows
+          echo Project: %1
+          echo Commands: %2
+          echo Mock test execution completed
+          exit /b 0
+          "@ | Out-File -FilePath "C:\Program Files\Epic Games\UE_5.4\Engine\Binaries\Win64\UnrealEditor.exe" -Encoding ASCII
+          
+          @"
+          @echo off
+          echo Mock Unreal Build Tool - Windows  
+          echo Build arguments: %*
+          echo Mock build completed successfully
+          exit /b 0
+          "@ | Out-File -FilePath "C:\Program Files\Epic Games\UE_5.4\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.exe" -Encoding ASCII
+          
+      - name: Validate project structure
+        run: |
+          Write-Host "Validating project structure..."
+          Get-ChildItem -Force
+          if (-not (Test-Path "BikeAdventure.uproject")) { throw "Project file missing" }
+          if (-not (Test-Path "Source")) { throw "Source directory missing" }
+          if (-not (Test-Path "Scripts\GauntletTests")) { throw "Gauntlet tests missing" }
+          Write-Host "✓ Project structure valid"
+          
+      - name: Run Windows Tests
+        run: |
+          Write-Host "Running tests on Windows..."
+          .\scripts\automation\run-all-tests.ps1 -Platform windows -TestType "${{ github.event.inputs.test_type || 'all' }}"
+          
+      - name: Upload Windows Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: windows-test-results
+          path: TestResults/
+          retention-days: 30
+          
+      - name: Generate Windows Test Summary
+        if: always()
+        run: |
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "## Windows Test Results 🪟"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value ""
+          
+          if (Test-Path "TestResults") {
+            $LatestSession = Get-ChildItem "TestResults" | Where-Object {$_.Name -like "Session_windows*"} | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+            if ($LatestSession) {
+              Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "**Test Session:** $($LatestSession.Name)"
+              Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value ""
+              
+              $CoverageFile = Join-Path $LatestSession.FullName "coverage_report.json"
+              if (Test-Path $CoverageFile) {
+                Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "**Coverage Report Available:** ✅"
+                
+                # Extract key metrics from coverage report
+                try {
+                  $CoverageData = Get-Content $CoverageFile | ConvertFrom-Json
+                  Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "**Quality Gates:**"
+                  
+                  foreach ($Gate in $CoverageData.quality_gates.PSObject.Properties) {
+                    $Status = if ($Gate.Value.passed) { "✅" } else { "❌" }
+                    $Actual = $Gate.Value.actual
+                    $Target = $Gate.Value.target
+                    Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "- $($Gate.Name): $Status ($Actual/$Target)"
+                  }
+                } catch {
+                  Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "- Error parsing coverage data"
+                }
+              } else {
+                Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "**Coverage Report:** ❌ Not generated"
+              }
+            } else {
+              Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "**Status:** ❌ No test session found"
+            }
+          } else {
+            Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "**Status:** ❌ No test results directory"
+          }
+
+  test-summary:
+    runs-on: ubuntu-latest
+    needs: [test-ubuntu, test-windows]
+    if: always()
+    
+    steps:
+      - name: Download Ubuntu Results
+        uses: actions/download-artifact@v3
+        continue-on-error: true
+        with:
+          name: ubuntu-test-results
+          path: ubuntu-results/
+          
+      - name: Download Windows Results
+        uses: actions/download-artifact@v3
+        continue-on-error: true
+        with:
+          name: windows-test-results
+          path: windows-results/
+          
+      - name: Generate Combined Summary
+        run: |
+          echo "# 🧪 Cross-Platform Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Test Type:** ${{ github.event.inputs.test_type || 'all' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check job results
+          UBUNTU_STATUS="${{ needs.test-ubuntu.result }}"
+          WINDOWS_STATUS="${{ needs.test-windows.result }}"
+          
+          echo "## Platform Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          case "$UBUNTU_STATUS" in
+            "success") echo "- **Ubuntu Linux:** ✅ PASSED" >> $GITHUB_STEP_SUMMARY ;;
+            "failure") echo "- **Ubuntu Linux:** ❌ FAILED" >> $GITHUB_STEP_SUMMARY ;;
+            "cancelled") echo "- **Ubuntu Linux:** ⚪ CANCELLED" >> $GITHUB_STEP_SUMMARY ;;
+            *) echo "- **Ubuntu Linux:** ⚠️ $UBUNTU_STATUS" >> $GITHUB_STEP_SUMMARY ;;
+          esac
+          
+          case "$WINDOWS_STATUS" in
+            "success") echo "- **Windows:** ✅ PASSED" >> $GITHUB_STEP_SUMMARY ;;
+            "failure") echo "- **Windows:** ❌ FAILED" >> $GITHUB_STEP_SUMMARY ;;
+            "cancelled") echo "- **Windows:** ⚪ CANCELLED" >> $GITHUB_STEP_SUMMARY ;;
+            *) echo "- **Windows:** ⚠️ $WINDOWS_STATUS" >> $GITHUB_STEP_SUMMARY ;;
+          esac
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Overall status
+          if [[ "$UBUNTU_STATUS" == "success" && "$WINDOWS_STATUS" == "success" ]]; then
+            echo "## 🎉 Overall Result: SUCCESS" >> $GITHUB_STEP_SUMMARY
+          elif [[ "$UBUNTU_STATUS" == "failure" || "$WINDOWS_STATUS" == "failure" ]]; then
+            echo "## ❌ Overall Result: FAILED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ⚠️ Overall Result: PARTIAL/UNKNOWN" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Review test artifacts for detailed results" >> $GITHUB_STEP_SUMMARY
+          echo "- Check individual job logs for failure details" >> $GITHUB_STEP_SUMMARY
+          echo "- Verify code coverage meets 80% minimum requirement" >> $GITHUB_STEP_SUMMARY

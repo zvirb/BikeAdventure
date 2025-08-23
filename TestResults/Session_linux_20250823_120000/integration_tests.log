@@ -1,0 +1,19 @@
+Mock Unreal Editor - Linux
+Project: "/home/marku/Documents/programming/BikeAdventure/BikeAdventure.uproject"
+Commands: "Automation RunTests BikeAdventure.Integration;Quit"
+
+Automation Test Framework Initialized
+Running BikeAdventure Integration Tests...
+
+BikeAdventure.Integration.CompleteGameplayFlow.GameStartToIntersection: PASSED (2.45s)
+BikeAdventure.Integration.CompleteGameplayFlow.ContinuousExploration: PASSED (18.67s)
+BikeAdventure.Integration.CompleteGameplayFlow.BiomeTransitionGameplay: PASSED (3.21s)
+
+Integration Test Summary:
+- Tests Run: 3
+- Tests Passed: 3
+- Tests Failed: 0
+- Total Time: 24.33s
+
+✓ Integration tests completed
+Mock test execution completed

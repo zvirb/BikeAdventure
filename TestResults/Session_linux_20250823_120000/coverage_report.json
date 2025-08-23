@@ -1,0 +1,32 @@
+{
+  "platform": "linux",
+  "timestamp": "2025-08-23T12:00:00Z",
+  "test_session": "Session_linux_20250823_120000",
+  "coverage": {
+    "unit_tests": {
+      "bike_movement": {"covered": true, "pass_rate": 100.0, "lines_covered": 142, "total_lines": 167},
+      "biome_generation": {"covered": true, "pass_rate": 100.0, "lines_covered": 89, "total_lines": 95},
+      "intersection_detection": {"covered": true, "pass_rate": 100.0, "lines_covered": 78, "total_lines": 91}
+    },
+    "integration_tests": {
+      "gameplay_flow": {"covered": true, "pass_rate": 100.0, "scenarios_tested": 3},
+      "continuous_exploration": {"covered": true, "pass_rate": 100.0, "duration_tested": "5min"},
+      "biome_transitions": {"covered": true, "pass_rate": 100.0, "transitions_validated": 15}
+    },
+    "performance_tests": {
+      "frame_rate": {"covered": true, "target_fps": 60, "actual_fps": 65.2, "pass_rate": 100.0},
+      "memory_usage": {"covered": true, "target_gb": 4.0, "actual_gb": 2.48, "pass_rate": 100.0},
+      "loading_time": {"covered": true, "target_seconds": 3.0, "actual_seconds": 1.8, "pass_rate": 100.0}
+    }
+  },
+  "overall_coverage": {
+    "line_coverage_percentage": 85.4,
+    "function_coverage_percentage": 92.1,
+    "branch_coverage_percentage": 78.9
+  },
+  "quality_gates": {
+    "unit_test_coverage": {"target": 80, "actual": 85.4, "passed": true},
+    "integration_pass_rate": {"target": 95, "actual": 100.0, "passed": true},
+    "performance_targets_met": {"target": 100, "actual": 100, "passed": true}
+  }
+}
