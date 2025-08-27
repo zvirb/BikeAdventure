@@ -7,7 +7,7 @@
 
 /**
  * Custom movement component for physics-based bike movement
- * Handles automatic forward movement with smooth turning mechanics
+ * Handles player-controlled forward movement with smooth turning mechanics
  */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class BIKEADVENTURE_API UBikeMovementComponent : public UPawnMovementComponent
@@ -21,11 +21,14 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	/** Called every frame to update movement */
-	virtual void UpdateMovement(float DeltaTime);
+        /** Called every frame to update movement */
+        virtual void UpdateMovement(float DeltaTime);
 
-	/** Set steering input (-1.0 to 1.0) */
-	void SetSteering(float SteeringInput);
+        /** Set steering input (-1.0 to 1.0) */
+        void SetSteering(float SteeringInput);
+
+       /** Set throttle input (0.0 to 1.0) */
+       void SetThrottle(float ThrottleInput);
 
 	/** Get current forward speed */
 	float GetCurrentSpeed() const { return CurrentForwardSpeed; }
@@ -74,13 +77,17 @@ public:
 	float GroundTraceDistance = 150.0f;
 
 protected:
-	/** Current forward velocity */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement|State")
-	float CurrentForwardSpeed = 0.0f;
+        /** Current forward velocity */
+        UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement|State")
+        float CurrentForwardSpeed = 0.0f;
 
-	/** Current steering input value */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement|State")
-	float SteeringValue = 0.0f;
+        /** Current steering input value */
+        UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement|State")
+        float SteeringValue = 0.0f;
+
+       /** Current throttle input value */
+       UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement|State")
+       float ThrottleValue = 0.0f;
 
 	/** Current turn rate being applied */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement|State")

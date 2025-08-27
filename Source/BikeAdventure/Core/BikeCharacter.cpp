@@ -73,27 +73,34 @@ void ABikeCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Update movement component
-	if (BikeMovement && RootComponent)
-	{
-		BikeMovement->SetSteering(SteeringInput);
-		BikeMovement->UpdateMovement(DeltaTime);
-	}
+        // Update movement component
+        if (BikeMovement && RootComponent)
+        {
+                BikeMovement->SetSteering(SteeringInput);
+               BikeMovement->SetThrottle(ThrottleInput);
+                BikeMovement->UpdateMovement(DeltaTime);
+        }
 }
 
 void ABikeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
+        Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// Bind traditional input actions
-	PlayerInputComponent->BindAxis("Turn", this, &ABikeCharacter::HandleTurnInput);
-	PlayerInputComponent->BindAction("LeftChoice", IE_Pressed, this, &ABikeCharacter::HandleLeftChoice);
-	PlayerInputComponent->BindAction("RightChoice", IE_Pressed, this, &ABikeCharacter::HandleRightChoice);
+        // Bind traditional input actions
+       PlayerInputComponent->BindAxis("Turn", this, &ABikeCharacter::HandleTurnInput);
+       PlayerInputComponent->BindAxis("Throttle", this, &ABikeCharacter::HandleThrottleInput);
+        PlayerInputComponent->BindAction("LeftChoice", IE_Pressed, this, &ABikeCharacter::HandleLeftChoice);
+        PlayerInputComponent->BindAction("RightChoice", IE_Pressed, this, &ABikeCharacter::HandleRightChoice);
 }
 
 void ABikeCharacter::HandleTurnInput(float Value)
 {
-	SteeringInput = FMath::Clamp(Value, -1.0f, 1.0f);
+        SteeringInput = FMath::Clamp(Value, -1.0f, 1.0f);
+}
+
+void ABikeCharacter::HandleThrottleInput(float Value)
+{
+       ThrottleInput = FMath::Clamp(Value, 0.0f, 1.0f);
 }
 
 void ABikeCharacter::HandleLeftChoice()

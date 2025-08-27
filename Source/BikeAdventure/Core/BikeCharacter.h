@@ -13,7 +13,7 @@ class AIntersection;
 
 /**
  * Physics-based bike character for meditative exploration
- * Features automatic forward movement with left/right steering control
+ * Features manual throttle and steering control
  */
 UCLASS()
 class BIKEADVENTURE_API ABikeCharacter : public APawn
@@ -57,9 +57,13 @@ protected:
 
 	//~ Input Handling
 
-	/** Handle left/right turning input */
-	UFUNCTION(BlueprintCallable, Category = "Input")
-	void HandleTurnInput(float Value);
+        /** Handle left/right turning input */
+        UFUNCTION(BlueprintCallable, Category = "Input")
+        void HandleTurnInput(float Value);
+
+       /** Handle throttle input */
+       UFUNCTION(BlueprintCallable, Category = "Input")
+       void HandleThrottleInput(float Value);
 
 	/** Handle intersection choice input (left direction) */
 	UFUNCTION(BlueprintCallable, Category = "Input")
@@ -101,13 +105,17 @@ public:
 	AIntersection* GetCurrentIntersection() const { return CurrentIntersection; }
 
 protected:
-	/** Current intersection the bike is at (null if not at intersection) */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
-	TObjectPtr<AIntersection> CurrentIntersection;
+        /** Current intersection the bike is at (null if not at intersection) */
+        UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gameplay")
+        TObjectPtr<AIntersection> CurrentIntersection;
 
-	/** Current steering input value (-1 to 1) */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input")
-	float SteeringInput = 0.0f;
+        /** Current steering input value (-1 to 1) */
+        UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input")
+        float SteeringInput = 0.0f;
+
+       /** Current throttle input value (0 to 1) */
+       UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input")
+       float ThrottleInput = 0.0f;
 
 private:
 	/** Set up default component values and relationships */

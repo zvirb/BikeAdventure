@@ -68,7 +68,12 @@ void UBikeMovementComponent::UpdateMovement(float DeltaTime)
 
 void UBikeMovementComponent::SetSteering(float SteeringInput)
 {
-	SteeringValue = FMath::Clamp(SteeringInput, -1.0f, 1.0f);
+        SteeringValue = FMath::Clamp(SteeringInput, -1.0f, 1.0f);
+}
+
+void UBikeMovementComponent::SetThrottle(float ThrottleInput)
+{
+       ThrottleValue = FMath::Clamp(ThrottleInput, 0.0f, 1.0f);
 }
 
 void UBikeMovementComponent::SetIntersectionMode(bool bEnabled)
@@ -79,17 +84,14 @@ void UBikeMovementComponent::SetIntersectionMode(bool bEnabled)
 
 void UBikeMovementComponent::UpdateForwardMovement(float DeltaTime)
 {
-	float TargetSpeed = GetTargetForwardSpeed();
-	
-	// Smooth acceleration/deceleration to target speed
-	float AccelerationRate = (CurrentForwardSpeed < TargetSpeed) ? 800.0f : 1200.0f; // Faster deceleration
-	CurrentForwardSpeed = SmoothInterp(CurrentForwardSpeed, TargetSpeed, AccelerationRate, DeltaTime);
+        float TargetSpeed = GetTargetForwardSpeed();
 
-	// Apply air resistance (subtle effect)
-	CurrentForwardSpeed *= (1.0f - AirResistance * DeltaTime);
-	
-	// Ensure minimum speed (bike never stops completely)
-	CurrentForwardSpeed = FMath::Max(CurrentForwardSpeed, TargetSpeed * 0.1f);
+        // Smooth acceleration/deceleration to target speed
+        float AccelerationRate = (CurrentForwardSpeed < TargetSpeed) ? 800.0f : 1200.0f; // Faster deceleration
+        CurrentForwardSpeed = SmoothInterp(CurrentForwardSpeed, TargetSpeed, AccelerationRate, DeltaTime);
+
+        // Apply air resistance (subtle effect)
+        CurrentForwardSpeed *= (1.0f - AirResistance * DeltaTime);
 }
 
 void UBikeMovementComponent::UpdateSteering(float DeltaTime)
@@ -182,7 +184,8 @@ void UBikeMovementComponent::ApplyMovement(const FVector& MovementVector, float 
 
 float UBikeMovementComponent::GetTargetForwardSpeed() const
 {
-	return bIntersectionMode ? IntersectionSpeed : ForwardSpeed;
+       float MaxSpeed = bIntersectionMode ? IntersectionSpeed : ForwardSpeed;
+       return ThrottleValue * MaxSpeed;
 }
 
 float UBikeMovementComponent::SmoothInterp(float Current, float Target, float Speed, float DeltaTime) const
