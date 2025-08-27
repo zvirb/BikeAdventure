@@ -370,7 +370,7 @@ void UWorldStreamingManager::LoadSection(const FIntVector& SectionCoordinates)
         {
             // Generate the path segment for this section
             FVector PathDirection = (Section->WorldPosition - LastPlayerPosition).GetSafeNormal();
-            BiomeGenerator->GeneratePathSegment(Section->WorldPosition, Section->BiomeType, PathDirection);
+            Section->PCGActors = BiomeGenerator->GeneratePathSegment(Section->WorldPosition, Section->BiomeType, PathDirection);
             
             // Determine if this section should have an intersection
             // For example, every 3rd section or based on some algorithm
