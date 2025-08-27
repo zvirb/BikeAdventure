@@ -43,13 +43,19 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMemoryBudgetTest, "BikeAdventure.WorldGenerati
 /**
  * Test suite for intersection generation
  */
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FIntersectionGenerationTest, "BikeAdventure.WorldGeneration.IntersectionGeneration", 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FIntersectionGenerationTest, "BikeAdventure.WorldGeneration.IntersectionGeneration",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::EngineFilter)
 
 /**
  * Test suite for PCG integration
  */
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPCGIntegrationTest, "BikeAdventure.WorldGeneration.PCGIntegration", 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPCGIntegrationTest, "BikeAdventure.WorldGeneration.PCGIntegration",
+    EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::EngineFilter)
+
+/**
+ * Test suite for procedural NPC generation along paths
+ */
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNPCGenerationTest, "BikeAdventure.WorldGeneration.NPCGeneration",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::EngineFilter)
 
 /**
