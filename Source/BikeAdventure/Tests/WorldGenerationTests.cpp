@@ -4,6 +4,8 @@
 #include "HAL/PlatformFilemanager.h"
 #include "Misc/DateTime.h"
 #include "Stats/Stats.h"
+#include "../Gameplay/PathNPCSpawner.h"
+#include "Components/SplineComponent.h"
 
 // Biome Transition Test Implementation
 bool FBiomeTransitionTest::RunTest(const FString& Parameters)
@@ -467,6 +469,64 @@ bool FPCGIntegrationTest::RunTest(const FString& Parameters)
 
     FWorldGenerationTestUtils::CleanupTestObjects(TestWorld);
     return bTestPassed;
+}
+
+bool FNPCGenerationTest::RunTest(const FString& Parameters)
+{
+    UWorld* TestWorld = FWorldGenerationTestUtils::CreateTestWorld();
+    if (!TestWorld)
+    {
+        AddError(TEXT("Failed to create test world"));
+        return false;
+    }
+
+    APathNPCSpawner* Spawner = TestWorld->SpawnActor<APathNPCSpawner>();
+    if (!Spawner)
+    {
+        AddError(TEXT("Failed to spawn NPC spawner"));
+        FWorldGenerationTestUtils::CleanupTestObjects(TestWorld);
+        return false;
+    }
+
+    USplineComponent* Spline = NewObject<USplineComponent>(Spawner);
+    Spline->RegisterComponent();
+    Spline->AddSplinePoint(FVector::ZeroVector, ESplineCoordinateSpace::Local);
+    Spline->AddSplinePoint(FVector(1000.0f, 0.0f, 0.0f), ESplineCoordinateSpace::Local);
+    Spline->SetClosedLoop(false);
+    Spawner->PathSpline = Spline;
+
+    Spawner->NPCClass = AActor::StaticClass();
+    Spawner->NPCCount = 3;
+    Spawner->RandomSeed = 42;
+
+    Spawner->SpawnNPCsAlongPath();
+
+    bool bPassed = true;
+    if (Spawner->SpawnedNPCs.Num() != Spawner->NPCCount)
+    {
+        AddError(TEXT("Incorrect number of NPCs spawned"));
+        bPassed = false;
+    }
+
+    for (AActor* NPC : Spawner->SpawnedNPCs)
+    {
+        if (!NPC)
+        {
+            AddError(TEXT("Null NPC spawned"));
+            bPassed = false;
+            continue;
+        }
+
+        FVector Closest = Spline->FindLocationClosestToWorldLocation(NPC->GetActorLocation(), ESplineCoordinateSpace::World);
+        if (!NPC->GetActorLocation().Equals(Closest, 1.0f))
+        {
+            AddError(TEXT("NPC spawned off path"));
+            bPassed = false;
+        }
+    }
+
+    FWorldGenerationTestUtils::CleanupTestObjects(TestWorld);
+    return bPassed;
 }
 
 // Comprehensive World Generation Test Implementation
