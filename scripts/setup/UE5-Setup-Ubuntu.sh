@@ -30,9 +30,9 @@ echo -e "${YELLOW}Installing system dependencies...${NC}"
 sudo apt install -y \
     build-essential ninja-build git git-lfs \
     python3 python3-dev python3-pip \
-    libvulkan1 vulkan-tools vulkan-validationlayers-dev \
-    libc6-dev libstdc++6 cmake clang-13 \
-    curl wget unzip
+    libvulkan1 vulkan-tools vulkan-utility-libraries-dev \
+    libc6-dev libstdc++6 cmake clang-15 \
+    curl wget unzip pciutils
 
 # Install additional graphics libraries
 sudo apt install -y \
@@ -54,8 +54,8 @@ mkdir -p "$INSTALL_DIR"
 mkdir -p "$PROJECT_DIR"/{Source,Content,Config,Documentation,Tests}
 
 # Setup Git LFS
-echo -e "${YELLOW}Configuring Git LFS...${NC}"
-git lfs install
+# echo -e "${YELLOW}Configuring Git LFS...${NC}"
+# git lfs install
 
 # Set environment variables
 echo -e "${YELLOW}Setting environment variables...${NC}"
@@ -69,6 +69,7 @@ export PATH="\$UE5_ROOT/Engine/Binaries/Linux:\$PATH"
 EOF
 
 # Create desktop entry for easy access
+mkdir -p ~/.local/share/applications
 cat > ~/.local/share/applications/bikeadventure-dev.desktop << EOF
 [Desktop Entry]
 Version=1.0

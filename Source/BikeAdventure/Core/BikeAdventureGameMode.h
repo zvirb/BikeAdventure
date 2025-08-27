@@ -63,5 +63,5 @@ protected:
 
 private:
 	/** Initialize core game systems */
-	void InitializeCoreystems();
+	void InitializeCoreSystems();
 };

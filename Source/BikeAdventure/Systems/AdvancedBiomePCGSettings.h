@@ -199,6 +199,69 @@ public:
 };
 
 /**
+ * Forest-specific PCG settings
+ */
+UCLASS(BlueprintType, Blueprintable)
+class BIKEADVENTURE_API UForestPCGSettings : public UBiomePCGSettings
+{
+    GENERATED_BODY()
+
+public:
+    UForestPCGSettings();
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float TreeDensity;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float UndergrowthDensity;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float WildlifePresence;
+};
+
+/**
+ * Desert-specific PCG settings
+ */
+UCLASS(BlueprintType, Blueprintable)
+class BIKEADVENTURE_API UDesertPCGSettings : public UBiomePCGSettings
+{
+    GENERATED_BODY()
+
+public:
+    UDesertPCGSettings();
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Generation", meta = (ClampMin = "0.0", ClampMax = "2000.0"))
+    float DuneHeight;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float RockFormationDensity;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float OasisChance;
+};
+
+/**
+ * Beach-specific PCG settings
+ */
+UCLASS(BlueprintType, Blueprintable)
+class BIKEADVENTURE_API UBeachPCGSettings : public UBiomePCGSettings
+{
+    GENERATED_BODY()
+
+public:
+    UBeachPCGSettings();
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float PalmTreeDensity;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float BoardwalkChance;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float ShellDensity;
+};
+
+/**
  * Advanced PCG element for specialized biome generation
  */
 class BIKEADVENTURE_API FAdvancedBiomeGenerationElement : public IPCGElement

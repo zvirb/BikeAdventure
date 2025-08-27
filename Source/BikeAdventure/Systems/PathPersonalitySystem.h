@@ -247,7 +247,7 @@ struct BIKEADVENTURE_API FPlayerChoiceHistory
 
     // Recent choice history (last 10 choices)
     UPROPERTY(BlueprintReadOnly, Category = "Recent History")
-    TArray<bool> RecentChoices; // true = left, false = right
+    TArray<bool> RecentChoices; // true = chose left path, false = chose right path
 
     // Recent biome history
     UPROPERTY(BlueprintReadOnly, Category = "Recent History")

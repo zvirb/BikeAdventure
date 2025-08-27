@@ -153,6 +153,11 @@ void AIntersection::OnPlayerExitIntersection(UPrimitiveComponent* OverlappedComp
     }
 }
 
+void AIntersection::HandlePlayerChoice(bool bChoseLeftPath)
+{
+    OnPlayerChoiceMade(bChoseLeftPath);
+}
+
 void AIntersection::OnPlayerChoiceMade(bool bChoseLeftPath)
 {
     if (bChoiceMade)

@@ -12,9 +12,9 @@ void UWorldStreamingManager::Initialize(FSubsystemCollectionBase& Collection)
     Super::Initialize(Collection);
     
     // Initialize default settings
-    MaxStreamingDistanceCm = 500000.0f; // 5km
+    MaxStreamingDistanceCm = 5000.0f; // 5km
     MaxActiveSections = 9; // 3x3 grid
-    SectionSizeCm = 200000.0f; // 2km per section
+    SectionSizeCm = 2000.0f; // 2km per section
     MaxMemoryBudgetKB = 4194304; // 4GB in KB
     UnloadTimeThreshold = 30.0f; // 30 seconds
     bEnablePredictiveLoading = true;

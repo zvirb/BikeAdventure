@@ -1,8 +1,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
+#include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Core/BiomeTypes.h"
 #include "BiomeGenerator.generated.h"
 
 /**
@@ -23,7 +24,19 @@ public:
 
 	/** Generate a new biome section */
 	UFUNCTION(BlueprintCallable, Category = "Biome Generator")
-	void GenerateBiome(const FVector& Location, int32 BiomeType);
+	void GenerateBiome(const FVector& Location, EBiomeType BiomeType);
+
+	/** Generate a path segment */
+	UFUNCTION(BlueprintCallable, Category = "Biome Generator")
+	void GeneratePathSegment(const FVector& Location, EBiomeType BiomeType, const FVector& Direction);
+
+	/** Generate an intersection */
+	UFUNCTION(BlueprintCallable, Category = "Biome Generator")
+	class AIntersection* GenerateIntersection(const FVector& Location, EBiomeType FromBiome, EBiomeType LeftBiome, EBiomeType RightBiome);
+
+	/** Determine the next biome based on choice and history */
+	UFUNCTION(BlueprintCallable, Category = "Biome Generator")
+	EBiomeType GenerateNextBiome(EBiomeType CurrentBiome, bool bLeftChoice, const TArray<EBiomeType>& BiomeHistory);
 
 protected:
 	/** Whether the system has been initialized */

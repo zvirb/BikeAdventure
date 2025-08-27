@@ -440,7 +440,7 @@ void UPerformanceOptimizationSystem::ApplyMeshLOD(UStaticMeshComponent* MeshComp
     }
     
     // Force specific LOD level
-    MeshComponent->SetForcedLodModel(LODLevel + 1); // UE uses 1-based LOD indexing for forced LOD
+    MeshComponent->SetForcedLodModel(LODLevel);
 }
 
 void UPerformanceOptimizationSystem::ApplyParticleOptimization(UNiagaraComponent* ParticleSystem, float Distance, int32 OptimizationLevel)

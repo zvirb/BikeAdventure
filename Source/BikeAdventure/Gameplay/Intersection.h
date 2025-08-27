@@ -102,6 +102,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Intersection")
     void OnPlayerChoiceMade(bool bChoseLeftPath);
 
+    /**
+     * Handle player choice input
+     */
+    UFUNCTION(BlueprintCallable, Category = "Intersection")
+    void HandlePlayerChoice(bool bChoseLeftPath);
+
 protected:
     // Root scene component
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))

@@ -5,6 +5,33 @@
 #include "Engine/Engine.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 
+// Forest PCG Settings
+UForestPCGSettings::UForestPCGSettings()
+{
+    BiomeType = EBiomeType::Forest;
+    TreeDensity = 0.8f;
+    UndergrowthDensity = 0.6f;
+    WildlifePresence = 0.5f;
+}
+
+// Desert PCG Settings
+UDesertPCGSettings::UDesertPCGSettings()
+{
+    BiomeType = EBiomeType::Desert;
+    DuneHeight = 1000.0f;
+    RockFormationDensity = 0.3f;
+    OasisChance = 0.05f;
+}
+
+// Beach PCG Settings
+UBeachPCGSettings::UBeachPCGSettings()
+{
+    BiomeType = EBiomeType::Beach;
+    PalmTreeDensity = 0.4f;
+    BoardwalkChance = 0.2f;
+    ShellDensity = 0.3f;
+}
+
 // Urban PCG Settings
 UUrbanPCGSettings::UUrbanPCGSettings()
 {

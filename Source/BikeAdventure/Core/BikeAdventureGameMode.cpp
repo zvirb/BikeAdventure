@@ -27,17 +27,17 @@ void ABikeAdventureGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	InitializeCoreystems();
+	InitializeCoreSystems();
 
 	UE_LOG(LogTemp, Warning, TEXT("BikeAdventure Game Mode initialized successfully"));
 }
 
-void ABikeAdventureGameMode::InitializeCoreystemsFromBlueprint()
+void ABikeAdventureGameMode::InitializeCoreSystemsFromBlueprint()
 {
-	InitializeCoreystems();
+	InitializeCoreSystems();
 }
 
-void ABikeAdventureGameMode::InitializeCoreystems()
+void ABikeAdventureGameMode::InitializeCoreSystems()
 {
 	// Initialize intersection management system
 	if (IntersectionManager)
