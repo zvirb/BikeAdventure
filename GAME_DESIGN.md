@@ -6,8 +6,8 @@ A meditative, exploration-focused bike riding game where players navigate an end
 ## Gameplay Mechanics
 
 ### Primary Interaction
-- **Single Input System**: At every intersection, fork, or branching path, players choose LEFT or RIGHT
-- **Automatic Forward Movement**: The bike maintains a steady, comfortable pace between decision points
+- **Manual Bike Control**: Players steer freely and manage their speed with throttle and brakes
+- **Intersection Choices**: At forks or junctions, players still choose LEFT or RIGHT to explore new paths
 - **No Failure States**: Every choice leads somewhere interesting - there are no wrong turns, only different discoveries
 
 ### Decision Points
