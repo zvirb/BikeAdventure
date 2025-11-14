@@ -235,9 +235,19 @@ void UPerformanceOptimizationSystem::UpdatePerformanceMetrics()
     {
         if (UStaticMeshComponent* MeshComp = WeakComponent.Get())
         {
-            // In practice, you'd get the actual LOD level from the component
-            // For now, use a placeholder
-            TotalLODLevel += 1; // Placeholder
+            // Get the actual LOD level from the component
+            int32 CurrentLOD = MeshComp->GetForcedLOD();
+            if (CurrentLOD == 0) // 0 means no forced LOD, use predicted LOD
+            {
+                CurrentLOD = MeshComp->GetPredictedLODLevel();
+            }
+            else
+            {
+                // Forced LOD is 1-based, convert to 0-based
+                CurrentLOD = FMath::Max(0, CurrentLOD - 1);
+            }
+
+            TotalLODLevel += CurrentLOD;
             LODCount++;
         }
     }

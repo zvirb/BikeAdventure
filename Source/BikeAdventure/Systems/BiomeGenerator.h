@@ -72,6 +72,18 @@ public:
         UFUNCTION(BlueprintCallable, Category = "Biome Generator")
         AIntersection* GenerateIntersection(const FVector& Location, EBiomeType CurrentBiome, EBiomeType LeftBiome, EBiomeType RightBiome);
 
+        /**
+         * Set the random seed for deterministic biome generation
+         */
+        UFUNCTION(BlueprintCallable, Category = "Biome Generator")
+        void SetGenerationSeed(int32 Seed);
+
+        /**
+         * Get PCG settings for a specific biome type
+         */
+        UFUNCTION(BlueprintCallable, Category = "Biome Generator")
+        UBiomePCGSettings* GetBiomePCGSettings(EBiomeType BiomeType);
+
 protected:
 	/** Whether the system has been initialized */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "State")
@@ -80,4 +92,14 @@ protected:
 	/** Current biome seed for procedural generation */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
         int32 BiomeSeed = 12345;
+
+	/** Random stream for deterministic generation */
+	FRandomStream RandomStream;
+
+	/** PCG settings for each biome type */
+	UPROPERTY()
+	TMap<EBiomeType, UBiomePCGSettings*> BiomePCGSettingsMap;
+
+	/** Initialize PCG settings for all biome types */
+	void InitializeBiomePCGSettings();
 };
