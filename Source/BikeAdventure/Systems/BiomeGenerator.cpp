@@ -8,6 +8,7 @@
 #include "AdvancedBiomePCGSettings.h"
 #include "PerformanceOptimizationSystem.h"
 #include "HAL/PlatformTime.h"
+#include "DrawDebugHelpers.h"
 
 UBiomePCGSettings::UBiomePCGSettings()
 {
@@ -29,6 +30,20 @@ UBiomeGenerator::UBiomeGenerator()
 
         // Initialize PCG settings for all biome types
         InitializeBiomePCGSettings();
+
+        // Initialize quality presets
+        InitializeQualityPresets();
+
+        // Detect platform and apply appropriate preset
+#if PLATFORM_ANDROID || PLATFORM_IOS
+        CurrentPlatform = EPlatformType::Mobile;
+#elif PLATFORM_XBOXONE || PLATFORM_PS4 || PLATFORM_SWITCH
+        CurrentPlatform = EPlatformType::Console;
+#else
+        CurrentPlatform = EPlatformType::MidRangePC; // Default to mid-range
+#endif
+
+        ApplyQualityPreset(CurrentPlatform);
 }
 
 void UBiomeGenerator::Initialize()
@@ -146,8 +161,8 @@ TArray<APCGActor*> UBiomeGenerator::GeneratePathSegment(const FVector& Location,
         // Calculate segment length based on biome parameters
         float SegmentLength = Params.PathWidth * 50.0f; // Approximately 50 path widths per segment
 
-        // Apply quality multiplier to actor count
-        float QualityMultiplier = GetQualityMultiplier();
+        // Apply quality multiplier to actor count (with biome-specific override)
+        float QualityMultiplier = GetQualityMultiplierForBiome(BiomeType);
         int32 BaseActorCount = FMath::Max(1, FMath::RoundToInt(SegmentLength / 10000.0f)); // One actor per 10km
         int32 NumActors = FMath::Max(1, FMath::RoundToInt(BaseActorCount * QualityMultiplier));
 
@@ -199,6 +214,12 @@ TArray<APCGActor*> UBiomeGenerator::GeneratePathSegment(const FVector& Location,
         UE_LOG(LogTemp, Log, TEXT("Generated path segment for %s biome at %s with %d/%d PCG actors (Quality: %d)"),
                *UBiomeUtilities::GetBiomeName(BiomeType), *Location.ToString(),
                SpawnedActors.Num(), NumActors, static_cast<int32>(CurrentQualityLevel));
+
+        // Draw debug visualization if enabled
+        if (bShowDebugVisualization)
+        {
+                DrawDebugVisualization(Location, BiomeType, SpawnedActors.Num());
+        }
 
         double EndTime = FPlatformTime::Seconds();
         float GenerationTimeMs = (EndTime - StartTime) * 1000.0f;
@@ -346,15 +367,17 @@ void UBiomeGenerator::UpdateAdaptiveQuality()
                 {
                         FPerformanceMetrics PerfMetrics = PerfSystem->GetCurrentMetrics();
 
-                        // Adjust quality based on performance
+                        // Adjust quality based on performance, respecting preset limits
                         if (!PerfMetrics.bWithinPerformanceTarget)
                         {
                                 // Performance is poor, reduce quality
-                                if (CurrentQualityLevel > EBiomeGenerationQuality::Low)
+                                if (CurrentQualityLevel > MinAllowedQuality)
                                 {
                                         EBiomeGenerationQuality NewQuality = static_cast<EBiomeGenerationQuality>(
-                                                static_cast<int32>(CurrentQualityLevel) - 1);
+                                                FMath::Max(static_cast<int32>(CurrentQualityLevel) - 1,
+                                                          static_cast<int32>(MinAllowedQuality)));
                                         SetGenerationQuality(NewQuality);
+                                        GenerationMetrics.QualityAdjustments++;
 
                                         UE_LOG(LogTemp, Warning, TEXT("Reduced biome generation quality due to performance"));
                                 }
@@ -362,11 +385,13 @@ void UBiomeGenerator::UpdateAdaptiveQuality()
                         else if (PerfMetrics.FrameTimeMs < 13.0f && PerfMetrics.CPUUsagePercent < 70.0f)
                         {
                                 // Performance is very good, can increase quality
-                                if (CurrentQualityLevel < EBiomeGenerationQuality::Ultra)
+                                if (CurrentQualityLevel < MaxAllowedQuality)
                                 {
                                         EBiomeGenerationQuality NewQuality = static_cast<EBiomeGenerationQuality>(
-                                                static_cast<int32>(CurrentQualityLevel) + 1);
+                                                FMath::Min(static_cast<int32>(CurrentQualityLevel) + 1,
+                                                          static_cast<int32>(MaxAllowedQuality)));
                                         SetGenerationQuality(NewQuality);
+                                        GenerationMetrics.QualityAdjustments++;
 
                                         UE_LOG(LogTemp, Log, TEXT("Increased biome generation quality due to good performance"));
                                 }
@@ -401,4 +426,174 @@ void UBiomeGenerator::RecordPathGeneration(float GenerationTimeMs, int32 ActorsS
                 GenerationMetrics.AveragePathGenerationTimeMs =
                         TotalPathGenerationTime / FMath::Max(1, GenerationMetrics.TotalPathSegments);
         }
+}
+
+void UBiomeGenerator::InitializeQualityPresets()
+{
+        // Low-End PC Preset
+        FQualityPreset LowEndPC;
+        LowEndPC.Platform = EPlatformType::LowEndPC;
+        LowEndPC.DefaultQuality = EBiomeGenerationQuality::Low;
+        LowEndPC.bEnableAdaptiveQuality = true;
+        LowEndPC.MaxQuality = EBiomeGenerationQuality::Medium;
+        LowEndPC.MinQuality = EBiomeGenerationQuality::Low;
+        QualityPresets.Add(EPlatformType::LowEndPC, LowEndPC);
+
+        // Mid-Range PC Preset
+        FQualityPreset MidRangePC;
+        MidRangePC.Platform = EPlatformType::MidRangePC;
+        MidRangePC.DefaultQuality = EBiomeGenerationQuality::Medium;
+        MidRangePC.bEnableAdaptiveQuality = true;
+        MidRangePC.MaxQuality = EBiomeGenerationQuality::High;
+        MidRangePC.MinQuality = EBiomeGenerationQuality::Low;
+        QualityPresets.Add(EPlatformType::MidRangePC, MidRangePC);
+
+        // High-End PC Preset
+        FQualityPreset HighEndPC;
+        HighEndPC.Platform = EPlatformType::HighEndPC;
+        HighEndPC.DefaultQuality = EBiomeGenerationQuality::High;
+        HighEndPC.bEnableAdaptiveQuality = true;
+        HighEndPC.MaxQuality = EBiomeGenerationQuality::Ultra;
+        HighEndPC.MinQuality = EBiomeGenerationQuality::Medium;
+        QualityPresets.Add(EPlatformType::HighEndPC, HighEndPC);
+
+        // Console Preset
+        FQualityPreset Console;
+        Console.Platform = EPlatformType::Console;
+        Console.DefaultQuality = EBiomeGenerationQuality::Medium;
+        Console.bEnableAdaptiveQuality = true;
+        Console.MaxQuality = EBiomeGenerationQuality::High;
+        Console.MinQuality = EBiomeGenerationQuality::Medium;
+        QualityPresets.Add(EPlatformType::Console, Console);
+
+        // Mobile Preset
+        FQualityPreset Mobile;
+        Mobile.Platform = EPlatformType::Mobile;
+        Mobile.DefaultQuality = EBiomeGenerationQuality::Low;
+        Mobile.bEnableAdaptiveQuality = false; // Keep stable on mobile
+        Mobile.MaxQuality = EBiomeGenerationQuality::Low;
+        Mobile.MinQuality = EBiomeGenerationQuality::Low;
+        QualityPresets.Add(EPlatformType::Mobile, Mobile);
+}
+
+void UBiomeGenerator::ApplyQualityPreset(EPlatformType Platform)
+{
+        const FQualityPreset* Preset = QualityPresets.Find(Platform);
+        if (Preset)
+        {
+                CurrentPlatform = Platform;
+                SetGenerationQuality(Preset->DefaultQuality);
+                SetAdaptiveQuality(Preset->bEnableAdaptiveQuality);
+                MaxAllowedQuality = Preset->MaxQuality;
+                MinAllowedQuality = Preset->MinQuality;
+
+                UE_LOG(LogTemp, Log, TEXT("Applied %s quality preset: Quality=%d, Adaptive=%s"),
+                       *UEnum::GetValueAsString(Platform),
+                       static_cast<int32>(Preset->DefaultQuality),
+                       Preset->bEnableAdaptiveQuality ? TEXT("On") : TEXT("Off"));
+        }
+}
+
+FQualityPreset UBiomeGenerator::GetQualityPreset(EPlatformType Platform) const
+{
+        const FQualityPreset* Preset = QualityPresets.Find(Platform);
+        if (Preset)
+        {
+                return *Preset;
+        }
+
+        // Return mid-range as default
+        FQualityPreset Default;
+        Default.Platform = Platform;
+        Default.DefaultQuality = EBiomeGenerationQuality::Medium;
+        return Default;
+}
+
+void UBiomeGenerator::SetBiomeQualityMultiplier(EBiomeType BiomeType, float Multiplier, bool bEnable)
+{
+        FBiomeQualityMultiplier BiomeMultiplier;
+        BiomeMultiplier.BiomeType = BiomeType;
+        BiomeMultiplier.QualityMultiplier = FMath::Clamp(Multiplier, 0.1f, 2.0f);
+        BiomeMultiplier.bEnabled = bEnable;
+
+        BiomeQualityMultipliers.Add(BiomeType, BiomeMultiplier);
+
+        UE_LOG(LogTemp, Log, TEXT("Set %s biome quality multiplier to %.2fx (%s)"),
+               *UBiomeUtilities::GetBiomeName(BiomeType),
+               BiomeMultiplier.QualityMultiplier,
+               bEnable ? TEXT("enabled") : TEXT("disabled"));
+}
+
+float UBiomeGenerator::GetBiomeQualityMultiplier(EBiomeType BiomeType) const
+{
+        const FBiomeQualityMultiplier* BiomeMultiplier = BiomeQualityMultipliers.Find(BiomeType);
+        if (BiomeMultiplier && BiomeMultiplier->bEnabled)
+        {
+                return BiomeMultiplier->QualityMultiplier;
+        }
+        return 1.0f; // Default multiplier
+}
+
+float UBiomeGenerator::GetQualityMultiplierForBiome(EBiomeType BiomeType) const
+{
+        float BaseMultiplier = GetQualityMultiplier();
+        float BiomeMultiplier = GetBiomeQualityMultiplier(BiomeType);
+        return BaseMultiplier * BiomeMultiplier;
+}
+
+FString UBiomeGenerator::ExportMetricsToJSON() const
+{
+        FString JSON = TEXT("{\n");
+        JSON += FString::Printf(TEXT("  \"TotalBiomesGenerated\": %d,\n"), GenerationMetrics.TotalBiomesGenerated);
+        JSON += FString::Printf(TEXT("  \"TotalPCGActorsSpawned\": %d,\n"), GenerationMetrics.TotalPCGActorsSpawned);
+        JSON += FString::Printf(TEXT("  \"TotalPathSegments\": %d,\n"), GenerationMetrics.TotalPathSegments);
+        JSON += FString::Printf(TEXT("  \"TotalIntersections\": %d,\n"), GenerationMetrics.TotalIntersections);
+        JSON += FString::Printf(TEXT("  \"AverageBiomeGenerationTimeMs\": %.2f,\n"), GenerationMetrics.AverageBiomeGenerationTimeMs);
+        JSON += FString::Printf(TEXT("  \"AveragePathGenerationTimeMs\": %.2f,\n"), GenerationMetrics.AveragePathGenerationTimeMs);
+        JSON += FString::Printf(TEXT("  \"FailedSpawns\": %d,\n"), GenerationMetrics.FailedSpawns);
+        JSON += FString::Printf(TEXT("  \"CurrentQualityLevel\": %d,\n"), static_cast<int32>(GenerationMetrics.CurrentQualityLevel));
+        JSON += FString::Printf(TEXT("  \"QualityAdjustments\": %d,\n"), GenerationMetrics.QualityAdjustments);
+        JSON += FString::Printf(TEXT("  \"Platform\": \"%s\",\n"), *UEnum::GetValueAsString(CurrentPlatform));
+        JSON += FString::Printf(TEXT("  \"AdaptiveQualityEnabled\": %s\n"), bUseAdaptiveQuality ? TEXT("true") : TEXT("false"));
+        JSON += TEXT("}");
+
+        return JSON;
+}
+
+void UBiomeGenerator::SetDebugVisualization(bool bEnable)
+{
+        bShowDebugVisualization = bEnable;
+        UE_LOG(LogTemp, Log, TEXT("Debug visualization %s"), bEnable ? TEXT("enabled") : TEXT("disabled"));
+}
+
+void UBiomeGenerator::DrawDebugVisualization(const FVector& Location, EBiomeType BiomeType, int32 ActorCount) const
+{
+        if (!GetWorld())
+        {
+                return;
+        }
+
+        // Draw biome color-coded sphere at generation location
+        FColor BiomeColor = FColor::White;
+        switch (BiomeType)
+        {
+                case EBiomeType::Forest:     BiomeColor = FColor::Green; break;
+                case EBiomeType::Beach:      BiomeColor = FColor::Yellow; break;
+                case EBiomeType::Desert:     BiomeColor = FColor::Orange; break;
+                case EBiomeType::Urban:      BiomeColor = FColor::Silver; break;
+                case EBiomeType::Countryside: BiomeColor = FColor::Cyan; break;
+                case EBiomeType::Mountains:  BiomeColor = FColor::White; break;
+                case EBiomeType::Wetlands:   BiomeColor = FColor::Blue; break;
+                default: break;
+        }
+
+        // Draw sphere at location
+        DrawDebugSphere(GetWorld(), Location, 500.0f, 12, BiomeColor, false, 30.0f, 0, 10.0f);
+
+        // Draw text showing biome name and actor count
+        FString DebugText = FString::Printf(TEXT("%s\n%d actors\nQ:%d"),
+                                           *UBiomeUtilities::GetBiomeName(BiomeType),
+                                           ActorCount,
+                                           static_cast<int32>(CurrentQualityLevel));
+        DrawDebugString(GetWorld(), Location + FVector(0, 0, 600), DebugText, nullptr, BiomeColor, 30.0f, true);
 }
