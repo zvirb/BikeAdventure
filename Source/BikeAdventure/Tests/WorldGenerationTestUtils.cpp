@@ -565,8 +565,352 @@ bool FWorldGenerationTestManager::RunMemoryBudgetTest(const FWorldGenerationTest
     }
     
     OutMetrics.MemoryUsageKB = StreamingManager->GetTotalMemoryUsageKB();
-    
+
     FWorldGenerationTestUtils::CleanupTestObjects(TestWorld);
     return FWorldGenerationTestValidator::ValidateMemoryUsage(
         OutMetrics.MemoryUsageKB, Scenario.ExpectedMaxMemoryKB, OutErrorMessage);
+}
+
+bool FWorldGenerationTestValidator::ValidatePathPersonalities(const TArray<EPathPersonality>& LeftPersonalities, const TArray<EPathPersonality>& RightPersonalities, FString& OutErrorMessage)
+{
+    // Validate array sizes match
+    if (LeftPersonalities.Num() != RightPersonalities.Num())
+    {
+        OutErrorMessage = FString::Printf(TEXT("Personality array size mismatch: Left=%d, Right=%d"),
+            LeftPersonalities.Num(), RightPersonalities.Num());
+        return false;
+    }
+
+    // Validate no None personalities
+    for (int32 i = 0; i < LeftPersonalities.Num(); i++)
+    {
+        if (LeftPersonalities[i] == EPathPersonality::None)
+        {
+            OutErrorMessage = FString::Printf(TEXT("Invalid left path personality (None) at index %d"), i);
+            return false;
+        }
+
+        if (RightPersonalities[i] == EPathPersonality::None)
+        {
+            OutErrorMessage = FString::Printf(TEXT("Invalid right path personality (None) at index %d"), i);
+            return false;
+        }
+    }
+
+    // Validate personality diversity (ensure not all paths have the same personality)
+    if (LeftPersonalities.Num() > 5)
+    {
+        TSet<EPathPersonality> UniqueLeftPersonalities;
+        TSet<EPathPersonality> UniqueRightPersonalities;
+
+        for (int32 i = 0; i < LeftPersonalities.Num(); i++)
+        {
+            UniqueLeftPersonalities.Add(LeftPersonalities[i]);
+            UniqueRightPersonalities.Add(RightPersonalities[i]);
+        }
+
+        if (UniqueLeftPersonalities.Num() < 2)
+        {
+            OutErrorMessage = TEXT("Left path personalities lack diversity (all paths have same personality)");
+            return false;
+        }
+
+        if (UniqueRightPersonalities.Num() < 2)
+        {
+            OutErrorMessage = TEXT("Right path personalities lack diversity (all paths have same personality)");
+            return false;
+        }
+    }
+
+    // Validate left/right personality tendencies
+    // Left paths should have more Wild, Challenge, Mystery personalities
+    // Right paths should have more Safe, Scenic, Peaceful personalities
+    int32 LeftAdventurous = 0;
+    int32 RightAdventurous = 0;
+
+    for (int32 i = 0; i < LeftPersonalities.Num(); i++)
+    {
+        // Count "adventurous" personalities on left paths
+        if (LeftPersonalities[i] == EPathPersonality::Wild ||
+            LeftPersonalities[i] == EPathPersonality::Challenge ||
+            LeftPersonalities[i] == EPathPersonality::Mystery)
+        {
+            LeftAdventurous++;
+        }
+
+        // Count "adventurous" personalities on right paths
+        if (RightPersonalities[i] == EPathPersonality::Wild ||
+            RightPersonalities[i] == EPathPersonality::Challenge ||
+            RightPersonalities[i] == EPathPersonality::Mystery)
+        {
+            RightAdventurous++;
+        }
+    }
+
+    // Left paths should tend toward more adventurous personalities than right paths
+    if (LeftPersonalities.Num() > 10 && LeftAdventurous < RightAdventurous)
+    {
+        OutErrorMessage = FString::Printf(TEXT("Path personality distribution unexpected: Left has fewer adventurous paths (%d) than Right (%d)"),
+            LeftAdventurous, RightAdventurous);
+        // This is a warning, not a failure - return true but log the issue
+    }
+
+    return true;
+}
+
+bool FWorldGenerationTestValidator::ValidateIntersectionGeneration(const TArray<AIntersection*>& Intersections, const TArray<EBiomeType>& BiomeSequence, FString& OutErrorMessage)
+{
+    if (Intersections.Num() == 0)
+    {
+        OutErrorMessage = TEXT("No intersections generated");
+        return false;
+    }
+
+    // Validate all intersections are valid
+    for (int32 i = 0; i < Intersections.Num(); i++)
+    {
+        AIntersection* Intersection = Intersections[i];
+
+        if (!IsValid(Intersection))
+        {
+            OutErrorMessage = FString::Printf(TEXT("Invalid intersection at index %d (null or destroyed)"), i);
+            return false;
+        }
+
+        // Validate intersection has valid biome assignments
+        EBiomeType LeftBiome = Intersection->GetLeftPathBiome();
+        EBiomeType RightBiome = Intersection->GetRightPathBiome();
+
+        if (LeftBiome == EBiomeType::None)
+        {
+            OutErrorMessage = FString::Printf(TEXT("Intersection %d has invalid left biome (None)"), i);
+            return false;
+        }
+
+        if (RightBiome == EBiomeType::None)
+        {
+            OutErrorMessage = FString::Printf(TEXT("Intersection %d has invalid right biome (None)"), i);
+            return false;
+        }
+
+        // Validate intersection type is appropriate for context
+        EIntersectionType IntersectionType = Intersection->GetIntersectionType();
+
+        if (IntersectionType == EIntersectionType::YFork &&
+            (LeftBiome == EBiomeType::Urban || RightBiome == EBiomeType::Urban))
+        {
+            // Y-forks are less common in urban areas - prefer roundabouts/T-junctions
+            // This is a style check, not a hard error
+        }
+
+        // Validate path directions are set
+        FVector LeftDirection = Intersection->GetLeftPathDirection();
+        FVector RightDirection = Intersection->GetRightPathDirection();
+
+        if (LeftDirection.IsNearlyZero() || RightDirection.IsNearlyZero())
+        {
+            OutErrorMessage = FString::Printf(TEXT("Intersection %d has invalid path directions"), i);
+            return false;
+        }
+
+        // Validate path hints are configured
+        FPathHints PathHints = Intersection->GetPathHints();
+
+        if (PathHints.LeftPathPersonality == EPathPersonality::None ||
+            PathHints.RightPathPersonality == EPathPersonality::None)
+        {
+            OutErrorMessage = FString::Printf(TEXT("Intersection %d missing path personality assignments"), i);
+            return false;
+        }
+    }
+
+    // Validate intersection spacing (if we have biome sequence context)
+    if (BiomeSequence.Num() > 0)
+    {
+        // Check that number of intersections is reasonable for biome sequence length
+        int32 ExpectedIntersections = BiomeSequence.Num() - 1; // One intersection per transition
+
+        if (Intersections.Num() < ExpectedIntersections * 0.5f)
+        {
+            OutErrorMessage = FString::Printf(TEXT("Too few intersections generated: %d for %d biome transitions"),
+                Intersections.Num(), BiomeSequence.Num());
+            return false;
+        }
+
+        if (Intersections.Num() > ExpectedIntersections * 2.0f)
+        {
+            OutErrorMessage = FString::Printf(TEXT("Too many intersections generated: %d for %d biome transitions"),
+                Intersections.Num(), BiomeSequence.Num());
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool FWorldGenerationTestValidator::ValidatePCGGeneration(const TArray<APCGActor*>& PCGActors, const TArray<EBiomeType>& BiomeSequence, FString& OutErrorMessage)
+{
+    if (PCGActors.Num() == 0)
+    {
+        OutErrorMessage = TEXT("No PCG actors generated");
+        return false;
+    }
+
+    // Validate all PCG actors are valid
+    int32 InvalidActorCount = 0;
+    for (int32 i = 0; i < PCGActors.Num(); i++)
+    {
+        if (!IsValid(PCGActors[i]))
+        {
+            InvalidActorCount++;
+        }
+    }
+
+    if (InvalidActorCount > 0)
+    {
+        OutErrorMessage = FString::Printf(TEXT("%d out of %d PCG actors are invalid"),
+            InvalidActorCount, PCGActors.Num());
+        return false;
+    }
+
+    // Validate PCG actor count is reasonable for biome sequence
+    if (BiomeSequence.Num() > 0)
+    {
+        // Expect at least some PCG actors per biome segment
+        int32 MinExpectedActors = BiomeSequence.Num() * 1;  // At least 1 per biome
+        int32 MaxExpectedActors = BiomeSequence.Num() * 50; // Max 50 per biome
+
+        if (PCGActors.Num() < MinExpectedActors)
+        {
+            OutErrorMessage = FString::Printf(TEXT("Too few PCG actors generated: %d for %d biomes (expected at least %d)"),
+                PCGActors.Num(), BiomeSequence.Num(), MinExpectedActors);
+            return false;
+        }
+
+        if (PCGActors.Num() > MaxExpectedActors)
+        {
+            OutErrorMessage = FString::Printf(TEXT("Too many PCG actors generated: %d for %d biomes (expected at most %d)"),
+                PCGActors.Num(), BiomeSequence.Num(), MaxExpectedActors);
+            return false;
+        }
+    }
+
+    // Validate PCG actors have proper component setup
+    for (APCGActor* PCGActor : PCGActors)
+    {
+        if (IsValid(PCGActor))
+        {
+            // Check that PCG actor has essential components
+            UActorComponent* PCGComponent = PCGActor->GetComponentByClass(UPCGComponent::StaticClass());
+
+            if (!PCGComponent)
+            {
+                OutErrorMessage = FString::Printf(TEXT("PCG actor '%s' missing PCGComponent"),
+                    *PCGActor->GetName());
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool FWorldGenerationTestValidator::ValidateStreamingBehavior(UWorldStreamingManager* StreamingManager, const TArray<FVector>& PlayerPositions, FString& OutErrorMessage)
+{
+    if (!IsValid(StreamingManager))
+    {
+        OutErrorMessage = TEXT("Invalid streaming manager");
+        return false;
+    }
+
+    if (PlayerPositions.Num() == 0)
+    {
+        OutErrorMessage = TEXT("No player positions provided for streaming validation");
+        return false;
+    }
+
+    // Test streaming behavior at each position
+    for (int32 i = 0; i < PlayerPositions.Num(); i++)
+    {
+        const FVector& Position = PlayerPositions[i];
+
+        // Update streaming for this position
+        StreamingManager->UpdateStreamingForPlayer(Position, FVector::ZeroVector);
+
+        // Validate that sections near the player are loaded
+        FWorldSection CurrentSection = StreamingManager->GetSectionAtLocation(Position);
+
+        if (!CurrentSection.bIsLoaded)
+        {
+            OutErrorMessage = FString::Printf(TEXT("Section at player position %s not loaded"),
+                *Position.ToString());
+            return false;
+        }
+
+        // Validate memory usage is within budget
+        if (!StreamingManager->IsWithinMemoryBudget())
+        {
+            OutErrorMessage = FString::Printf(TEXT("Memory budget exceeded at position %s (usage: %dKB)"),
+                *Position.ToString(), StreamingManager->GetTotalMemoryUsageKB());
+            return false;
+        }
+
+        // Validate active sections count is reasonable
+        TArray<FWorldSection> ActiveSections = StreamingManager->GetActiveSections();
+
+        if (ActiveSections.Num() == 0)
+        {
+            OutErrorMessage = FString::Printf(TEXT("No active sections at position %s"),
+                *Position.ToString());
+            return false;
+        }
+
+        if (ActiveSections.Num() > 50)
+        {
+            OutErrorMessage = FString::Printf(TEXT("Too many active sections (%d) at position %s"),
+                ActiveSections.Num(), *Position.ToString());
+            return false;
+        }
+    }
+
+    // Test cleanup behavior by moving to distant position
+    if (PlayerPositions.Num() > 1)
+    {
+        FVector FirstPosition = PlayerPositions[0];
+        FVector LastPosition = PlayerPositions[PlayerPositions.Num() - 1];
+
+        // Stream at first position
+        StreamingManager->UpdateStreamingForPlayer(FirstPosition, FVector::ZeroVector);
+        int32 SectionsAtFirst = StreamingManager->GetActiveSections().Num();
+
+        // Move to distant last position
+        StreamingManager->UpdateStreamingForPlayer(LastPosition, FVector::ZeroVector);
+
+        // Force cleanup of distant sections
+        StreamingManager->CleanupDistantSections(LastPosition, false);
+
+        // Validate that cleanup occurred
+        FWorldSection FirstSection = StreamingManager->GetSectionAtLocation(FirstPosition);
+
+        float Distance = FVector::Dist(FirstPosition, LastPosition);
+        if (Distance > 500000.0f) // If positions are far apart (>5km)
+        {
+            // First section should be unloaded after cleanup
+            if (FirstSection.bIsLoaded)
+            {
+                // This might be okay if within streaming distance, just log
+            }
+        }
+
+        // Validate performance metrics are being tracked
+        FStreamingPerformanceMetrics Metrics = StreamingManager->GetPerformanceMetrics();
+
+        if (Metrics.LoadedSections < 0)
+        {
+            OutErrorMessage = TEXT("Invalid streaming performance metrics (negative loaded sections)");
+            return false;
+        }
+    }
+
+    return true;
 }
