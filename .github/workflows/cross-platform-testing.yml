@@ -53,7 +53,7 @@ jobs:
           
       - name: Cache UE5 Engine (Linux)
         id: cache-ue5-linux
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: /opt/UnrealEngine
           key: ue5-${{ env.UE5_VERSION }}-linux-${{ hashFiles('BikeAdventure.uproject') }}
@@ -103,7 +103,7 @@ jobs:
           ./scripts/automation/run-all-tests.sh linux ${{ github.event.inputs.test_type || 'all' }}
           
       - name: Upload Ubuntu Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ubuntu-test-results
@@ -164,7 +164,7 @@ jobs:
           
       - name: Cache UE5 Engine (Windows)
         id: cache-ue5-windows
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: 'C:\Program Files\Epic Games\UE_5.4'
           key: ue5-${{ env.UE5_VERSION }}-windows-${{ hashFiles('BikeAdventure.uproject') }}
@@ -211,7 +211,7 @@ jobs:
           .\scripts\automation\run-all-tests.ps1 -Platform windows -TestType "${{ github.event.inputs.test_type || 'all' }}"
           
       - name: Upload Windows Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: windows-test-results
@@ -265,14 +265,14 @@ jobs:
     
     steps:
       - name: Download Ubuntu Results
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           name: ubuntu-test-results
           path: ubuntu-results/
           
       - name: Download Windows Results
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           name: windows-test-results

@@ -77,7 +77,7 @@ jobs:
           echo "✓ Project structure validation passed"
 
       - name: Cache UE5 Dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cache/Unreal
@@ -178,6 +178,7 @@ jobs:
           path: |
             Builds/BikeAdventure-Linux-v${{ env.VERSION }}-${{ env.BUILD_NUMBER }}.tar.gz
             TestResults/Linux/
+          if-no-files-found: ignore
           retention-days: 30
 
       - name: Upload Linux Test Results
@@ -186,6 +187,7 @@ jobs:
         with:
           name: linux-test-results-${{ env.BUILD_NUMBER }}
           path: TestResults/Linux/
+          if-no-files-found: ignore
           retention-days: 7
 
   # Windows build job  
@@ -284,6 +286,7 @@ jobs:
           path: |
             Builds/BikeAdventure-Windows-v${{ env.VERSION }}-${{ env.BUILD_NUMBER }}.zip
             TestResults/Windows/
+          if-no-files-found: ignore
           retention-days: 30
 
       - name: Upload Windows Test Results
@@ -292,6 +295,7 @@ jobs:
         with:
           name: windows-test-results-${{ env.BUILD_NUMBER }}
           path: TestResults/Windows/
+          if-no-files-found: ignore
           retention-days: 7
 
   # Post-build validation and deployment
