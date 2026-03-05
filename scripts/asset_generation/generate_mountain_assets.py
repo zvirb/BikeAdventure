@@ -51,8 +51,16 @@ def create_master_material(mat_path):
         mat, unreal.MaterialExpressionMultiply, -200, 0
     )
 
+    # Connect BaseColor and Noise to Multiply
+    unreal.MaterialEditingLibrary.connect_material_expressions(
+        base_color_node, "", multiply_node, "A"
+    )
+    unreal.MaterialEditingLibrary.connect_material_expressions(
+        noise_node, "", multiply_node, "B"
+    )
+
     unreal.MaterialEditingLibrary.connect_material_property(
-        base_color_node, "RGB", unreal.MaterialProperty.MP_BASE_COLOR
+        multiply_node, "", unreal.MaterialProperty.MP_BASE_COLOR
     )
     unreal.MaterialEditingLibrary.connect_material_property(
         roughness_node, "", unreal.MaterialProperty.MP_ROUGHNESS
@@ -115,60 +123,103 @@ def generate_alpine_plant(mesh_path, mat_inst):
         print(f"Asset already exists: {mesh_path}")
         return
 
-    # In UE5 Geometry Script, Blueprint Function Libraries translate to snake_case module functions
-    # For primitives, it is usually unreal.GeometryScript_MeshPrimitiveFunctions
     try:
-        dyn_mesh = unreal.GeometryScript_AssetUtils.create_new_dynamic_mesh()
+        # Using correct UE5 Blueprint Library naming convention for Python
+        dyn_mesh = unreal.GeometryScriptLibrary_CreateNewDynamicMesh.create_new_dynamic_mesh()
     except AttributeError:
-        # Fallback to direct instantiation if the function is not available
-        dyn_mesh = unreal.DynamicMesh()
+        try:
+            dyn_mesh = unreal.GeometryScript_AssetUtils.create_new_dynamic_mesh()
+        except AttributeError:
+            dyn_mesh = unreal.DynamicMesh()
 
     options = unreal.GeometryScriptPrimitiveOptions()
     transform = unreal.Transform()
 
     # Add trunk
     try:
-        unreal.GeometryScript_MeshPrimitiveFunctions.append_cylinder(
-            target_mesh=dyn_mesh,
-            primitive_options=options,
-            transform=transform,
-            radius=10.0,
-            height=50.0,
-            radial_steps=8,
-            height_steps=1,
-            capped=True,
-            origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
-        )
+        if hasattr(unreal, "GeometryScriptLibrary_MeshPrimitiveFunctions"):
+            unreal.GeometryScriptLibrary_MeshPrimitiveFunctions.append_cylinder(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=transform,
+                radius=10.0,
+                height=50.0,
+                radial_steps=8,
+                height_steps=1,
+                capped=True,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+            )
 
-        # Add leaves layers
-        leaf_transform = unreal.Transform()
-        leaf_transform.translation = [0, 0, 40.0]
-        unreal.GeometryScript_MeshPrimitiveFunctions.append_cone(
-            target_mesh=dyn_mesh,
-            primitive_options=options,
-            transform=leaf_transform,
-            base_radius=40.0,
-            top_radius=0.0,
-            height=60.0,
-            radial_steps=8,
-            height_steps=1,
-            capped=True,
-            origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
-        )
+            # Add leaves layers
+            leaf_transform = unreal.Transform()
+            leaf_transform.translation = [0, 0, 40.0]
+            unreal.GeometryScriptLibrary_MeshPrimitiveFunctions.append_cone(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=leaf_transform,
+                base_radius=40.0,
+                top_radius=0.0,
+                height=60.0,
+                radial_steps=8,
+                height_steps=1,
+                capped=True,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+            )
 
-        leaf_transform.translation = [0, 0, 80.0]
-        unreal.GeometryScript_MeshPrimitiveFunctions.append_cone(
-            target_mesh=dyn_mesh,
-            primitive_options=options,
-            transform=leaf_transform,
-            base_radius=30.0,
-            top_radius=0.0,
-            height=50.0,
-            radial_steps=8,
-            height_steps=1,
-            capped=True,
-            origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
-        )
+            leaf_transform.translation = [0, 0, 80.0]
+            unreal.GeometryScriptLibrary_MeshPrimitiveFunctions.append_cone(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=leaf_transform,
+                base_radius=30.0,
+                top_radius=0.0,
+                height=50.0,
+                radial_steps=8,
+                height_steps=1,
+                capped=True,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+            )
+        else:
+            unreal.GeometryScript_MeshPrimitiveFunctions.append_cylinder(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=transform,
+                radius=10.0,
+                height=50.0,
+                radial_steps=8,
+                height_steps=1,
+                capped=True,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+            )
+
+            leaf_transform = unreal.Transform()
+            leaf_transform.translation = [0, 0, 40.0]
+            unreal.GeometryScript_MeshPrimitiveFunctions.append_cone(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=leaf_transform,
+                base_radius=40.0,
+                top_radius=0.0,
+                height=60.0,
+                radial_steps=8,
+                height_steps=1,
+                capped=True,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+            )
+
+            leaf_transform.translation = [0, 0, 80.0]
+            unreal.GeometryScript_MeshPrimitiveFunctions.append_cone(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=leaf_transform,
+                base_radius=30.0,
+                top_radius=0.0,
+                height=50.0,
+                radial_steps=8,
+                height_steps=1,
+                capped=True,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+            )
     except Exception as e:
         print(f"GeometryScript generation failed (perhaps plugin not enabled): {e}")
         return
@@ -176,11 +227,18 @@ def generate_alpine_plant(mesh_path, mat_inst):
     # Save Dynamic Mesh to Static Mesh Asset
     create_options = unreal.GeometryScriptCreateNewStaticMeshAssetOptions()
     try:
-        static_mesh = unreal.GeometryScript_AssetUtils.create_new_static_mesh_asset_from_dynamic_mesh(
-            dynamic_mesh=dyn_mesh,
-            asset_path_and_name=mesh_path,
-            options=create_options
-        )
+        if hasattr(unreal, "GeometryScriptLibrary_CreateNewStaticMeshAssetFromDynamicMesh"):
+            static_mesh = unreal.GeometryScriptLibrary_CreateNewStaticMeshAssetFromDynamicMesh.create_new_static_mesh_asset_from_dynamic_mesh(
+                dynamic_mesh=dyn_mesh,
+                asset_path_and_name=mesh_path,
+                options=create_options
+            )
+        else:
+            static_mesh = unreal.GeometryScript_AssetUtils.create_new_static_mesh_asset_from_dynamic_mesh(
+                dynamic_mesh=dyn_mesh,
+                asset_path_and_name=mesh_path,
+                options=create_options
+            )
 
         # Apply material
         assign_material_to_mesh(static_mesh, mat_inst)
@@ -194,43 +252,62 @@ def generate_mountain_rock(mesh_path, mat_inst):
         return
 
     try:
-        dyn_mesh = unreal.GeometryScript_AssetUtils.create_new_dynamic_mesh()
+        dyn_mesh = unreal.GeometryScriptLibrary_CreateNewDynamicMesh.create_new_dynamic_mesh()
     except AttributeError:
-        dyn_mesh = unreal.DynamicMesh()
+        try:
+            dyn_mesh = unreal.GeometryScript_AssetUtils.create_new_dynamic_mesh()
+        except AttributeError:
+            dyn_mesh = unreal.DynamicMesh()
 
     options = unreal.GeometryScriptPrimitiveOptions()
     transform = unreal.Transform()
 
     # Create base box to act as a rock
     try:
-        unreal.GeometryScript_MeshPrimitiveFunctions.append_box(
-            target_mesh=dyn_mesh,
-            primitive_options=options,
-            transform=transform,
-            dimension_x=100.0,
-            dimension_y=120.0,
-            dimension_z=80.0,
-            steps_x=3,
-            steps_y=3,
-            steps_z=3,
-            origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
-        )
-
-        # Apply some noise for organic look
-        perlin_options = unreal.GeometryScript3DGridNeuralNetworkOptions() # Placeholder for options if needed, but not required
-        # Note: Actual perlin noise function might be GeometryScript_MeshModifiers.apply_perlin_noise_to_mesh
-        # We will keep it low-poly simple for now.
+        if hasattr(unreal, "GeometryScriptLibrary_MeshPrimitiveFunctions"):
+            unreal.GeometryScriptLibrary_MeshPrimitiveFunctions.append_box(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=transform,
+                dimension_x=100.0,
+                dimension_y=120.0,
+                dimension_z=80.0,
+                steps_x=3,
+                steps_y=3,
+                steps_z=3,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+            )
+        else:
+            unreal.GeometryScript_MeshPrimitiveFunctions.append_box(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=transform,
+                dimension_x=100.0,
+                dimension_y=120.0,
+                dimension_z=80.0,
+                steps_x=3,
+                steps_y=3,
+                steps_z=3,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+            )
     except Exception as e:
         print(f"GeometryScript generation failed: {e}")
         return
 
     create_options = unreal.GeometryScriptCreateNewStaticMeshAssetOptions()
     try:
-        static_mesh = unreal.GeometryScript_AssetUtils.create_new_static_mesh_asset_from_dynamic_mesh(
-            dynamic_mesh=dyn_mesh,
-            asset_path_and_name=mesh_path,
-            options=create_options
-        )
+        if hasattr(unreal, "GeometryScriptLibrary_CreateNewStaticMeshAssetFromDynamicMesh"):
+            static_mesh = unreal.GeometryScriptLibrary_CreateNewStaticMeshAssetFromDynamicMesh.create_new_static_mesh_asset_from_dynamic_mesh(
+                dynamic_mesh=dyn_mesh,
+                asset_path_and_name=mesh_path,
+                options=create_options
+            )
+        else:
+            static_mesh = unreal.GeometryScript_AssetUtils.create_new_static_mesh_asset_from_dynamic_mesh(
+                dynamic_mesh=dyn_mesh,
+                asset_path_and_name=mesh_path,
+                options=create_options
+            )
 
         # Apply material
         assign_material_to_mesh(static_mesh, mat_inst)
