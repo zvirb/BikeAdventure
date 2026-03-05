@@ -77,7 +77,7 @@ jobs:
           echo "✓ Project structure validation passed"
 
       - name: Cache UE5 Dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cache/Unreal
