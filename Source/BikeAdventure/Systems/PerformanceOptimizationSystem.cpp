@@ -124,14 +124,16 @@ FBiomeLODConfig UPerformanceOptimizationSystem::GetBiomeLODConfig(EBiomeType Bio
 
 void UPerformanceOptimizationSystem::OptimizeObjectsInRadius(const FVector& Center, float Radius)
 {
+    float RadiusSquared = Radius * Radius;
     // Optimize mesh components in radius
     for (auto& WeakComponent : TrackedMeshComponents)
     {
         if (UStaticMeshComponent* MeshComp = WeakComponent.Get())
         {
-            float Distance = FVector::Dist(MeshComp->GetComponentLocation(), Center);
-            if (Distance <= Radius)
+            float DistanceSquared = FVector::DistSquared(MeshComp->GetComponentLocation(), Center);
+            if (DistanceSquared <= RadiusSquared)
             {
+                float Distance = FMath::Sqrt(DistanceSquared);
                 // Determine biome type (simplified - in practice this would be more sophisticated)
                 EBiomeType BiomeType = EBiomeType::Countryside; // Default
                 int32 LODLevel = CalculateLODLevel(Distance, BiomeType);
@@ -145,9 +147,10 @@ void UPerformanceOptimizationSystem::OptimizeObjectsInRadius(const FVector& Cent
     {
         if (UNiagaraComponent* ParticleComp = WeakParticle.Get())
         {
-            float Distance = FVector::Dist(ParticleComp->GetComponentLocation(), Center);
-            if (Distance <= Radius)
+            float DistanceSquared = FVector::DistSquared(ParticleComp->GetComponentLocation(), Center);
+            if (DistanceSquared <= RadiusSquared)
             {
+                float Distance = FMath::Sqrt(DistanceSquared);
                 ApplyParticleOptimization(ParticleComp, Distance, OptimizationSettings.ParticleOptimizationLevel);
             }
         }
@@ -370,15 +373,15 @@ void UPerformanceOptimizationSystem::OptimizePCGActors(const FVector& PlayerLoca
     {
         if (APCGActor* PCGActor = WeakPCGActor.Get())
         {
-            float Distance = FVector::Dist(PCGActor->GetActorLocation(), PlayerLocation);
+            float DistanceSquared = FVector::DistSquared(PCGActor->GetActorLocation(), PlayerLocation);
             
             // Optimize PCG actor based on distance and performance settings
-            if (Distance > 5000.0f) // 5km
+            if (DistanceSquared > 25000000.0f) // 5000 * 5000 = 5km squared
             {
                 // Disable or reduce PCG generation at long distances
                 PCGActor->SetActorHiddenInGame(true);
             }
-            else if (Distance > 2000.0f) // 2km
+            else if (DistanceSquared > 4000000.0f) // 2000 * 2000 = 2km squared
             {
                 // Reduce PCG detail at medium distances
                 PCGActor->SetActorHiddenInGame(false);
