@@ -2,6 +2,7 @@
 #include "Core/BikeCharacter.h"
 #include "Systems/IntersectionManager.h"
 #include "Systems/BiomeGenerator.h"
+#include "Systems/DiscoverySystem.h"
 #include "Engine/World.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -13,6 +14,7 @@ ABikeAdventureGameMode::ABikeAdventureGameMode()
 	// Initialize core systems
 	IntersectionManager = CreateDefaultSubobject<UIntersectionManager>(TEXT("IntersectionManager"));
 	BiomeGenerator = CreateDefaultSubobject<UBiomeGenerator>(TEXT("BiomeGenerator"));
+	DiscoverySystem = CreateDefaultSubobject<UDiscoverySystem>(TEXT("DiscoverySystem"));
 
 	// Set default gameplay settings optimized for meditative experience
 	DefaultBikeSpeed = 1200.0f; // 12 m/s - comfortable exploration speed
@@ -59,5 +61,16 @@ void ABikeAdventureGameMode::InitializeCoreystems()
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Failed to initialize Biome Generator - null reference"));
+	}
+
+	// Initialize discovery system
+	if (DiscoverySystem)
+	{
+		DiscoverySystem->Initialize();
+		UE_LOG(LogTemp, Log, TEXT("Discovery System initialized"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to initialize Discovery System - null reference"));
 	}
 }

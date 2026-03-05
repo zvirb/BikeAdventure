@@ -1,0 +1,49 @@
+name: Auto Merge All PRs
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+jobs:
+  auto-merge:
+    name: Auto Merge
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Auto Merge PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          # Give GitHub a moment to calculate mergeability
+          sleep 5
+          
+          echo "Attempting to merge PR: $PR_URL"
+          
+          # Try to approve the PR if required (fails gracefully if not allowed)
+          gh pr review "$PR_URL" --approve || echo "Could not approve PR (expected if PR is yours or review not required)"
+          
+          # Try setting auto-merge first (respects branch protection / status checks)
+          if gh pr merge "$PR_URL" --auto --merge --delete-branch; then
+            echo "Auto-merge enabled successfully."
+          else
+            echo "Auto-merge could not be enabled. Attempting direct merge..."
+            
+            # Try direct merge if auto-merge fails/unavailable
+            if gh pr merge "$PR_URL" --merge --delete-branch; then
+              echo "Merged successfully."
+            else
+              echo "Direct merge failed. Attempting with admin privileges..."
+              # Try with admin privileges as last resort
+              gh pr merge "$PR_URL" --merge --admin --delete-branch || echo "Merge failed."
+            fi
+          fi

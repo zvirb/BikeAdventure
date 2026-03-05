@@ -88,6 +88,13 @@ protected:
 	void OnDiscoveryMade(const FString& DiscoveryName, const FString& DiscoveryDescription);
 
 public:
+	/** Trigger discovery event from C++ */
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	void TriggerDiscoveryEvent(const FString& DiscoveryName, const FString& DiscoveryDescription)
+	{
+		OnDiscoveryMade(DiscoveryName, DiscoveryDescription);
+	}
+
 	/** Get the bike movement component */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	UBikeMovementComponent* GetBikeMovement() const { return BikeMovement; }

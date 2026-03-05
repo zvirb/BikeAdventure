@@ -9,6 +9,8 @@
 #include "Materials/MaterialInterface.h"
 #include "Engine/Engine.h"
 #include "Engine/StaticMesh.h"
+#include "Core/BikeAdventureGameMode.h"
+#include "Systems/DiscoverySystem.h"
 
 AIntersection::AIntersection()
 {
@@ -170,6 +172,18 @@ void AIntersection::OnPlayerChoiceMade(bool bChoseLeftPath)
 
     // Broadcast choice event
     OnPlayerChoiceMadeEvent.Broadcast(this, bChoseLeftPath, ChosenBiome);
+
+    // Trigger possible discoveries in the new biome
+    if (UWorld* World = GetWorld())
+    {
+        if (class ABikeAdventureGameMode* GameMode = Cast<class ABikeAdventureGameMode>(World->GetAuthGameMode()))
+        {
+            if (class UDiscoverySystem* DiscoverySys = GameMode->DiscoverySystem)
+            {
+                DiscoverySys->HandleBiomeEntered(ChosenBiome);
+            }
+        }
+    }
 
     // Could add visual feedback for the chosen path
     UStaticMeshComponent* ChosenIndicator = bChoseLeftPath ? LeftPathIndicator : RightPathIndicator;
