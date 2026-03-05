@@ -13,6 +13,10 @@ UUrbanPCGSettings::UUrbanPCGSettings()
     StreetFurnitureDensity = 0.3f;
     GreenSpaceChance = 0.2f;
     bIncludeTrafficElements = true;
+
+    // Add programmatic assets to arrays
+    BuildingMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBuilding.SM_UrbanBuilding"))));
+    StreetFurnitureMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBench.SM_UrbanBench"))));
 }
 
 // Countryside PCG Settings
