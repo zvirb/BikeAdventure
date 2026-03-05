@@ -103,12 +103,15 @@ void UWorldStreamingManager::CleanupDistantSections(const FVector& PlayerLocatio
     TArray<FIntVector> SectionsToUnload;
     float CurrentTime = GetWorld()->GetTimeSeconds();
     
+    float MaxStreamingDistanceSquared = MaxStreamingDistanceCm * MaxStreamingDistanceCm;
+    float ForceCleanupDistanceSquared = (SectionSizeCm * 1.5f) * (SectionSizeCm * 1.5f);
+
     for (auto& SectionPair : ActiveSections)
     {
         const FIntVector& SectionCoords = SectionPair.Key;
         FWorldSection& Section = SectionPair.Value;
         
-        float DistanceToPlayer = FVector::Dist(Section.WorldPosition, PlayerLocation);
+        float DistanceToPlayerSquared = FVector::DistSquared(Section.WorldPosition, PlayerLocation);
         float TimeSinceAccess = CurrentTime - Section.LastAccessTime;
         
         bool bShouldUnload = false;
@@ -116,7 +119,7 @@ void UWorldStreamingManager::CleanupDistantSections(const FVector& PlayerLocatio
         if (bForceCleanup)
         {
             // Force unload if not in immediate vicinity
-            if (DistanceToPlayer > SectionSizeCm * 1.5f)
+            if (DistanceToPlayerSquared > ForceCleanupDistanceSquared)
             {
                 bShouldUnload = true;
             }
@@ -124,7 +127,7 @@ void UWorldStreamingManager::CleanupDistantSections(const FVector& PlayerLocatio
         else
         {
             // Normal unloading conditions
-            if (DistanceToPlayer > MaxStreamingDistanceCm || TimeSinceAccess > UnloadTimeThreshold)
+            if (DistanceToPlayerSquared > MaxStreamingDistanceSquared || TimeSinceAccess > UnloadTimeThreshold)
             {
                 bShouldUnload = true;
             }
@@ -187,13 +190,14 @@ void UWorldStreamingManager::UpdateStreamingForPlayer(const FVector& PlayerLocat
     }
     
     // Update visibility for all sections
+    float VisibilityDistanceSquared = (SectionSizeCm * 1.5f) * (SectionSizeCm * 1.5f);
     for (auto& SectionPair : ActiveSections)
     {
         FWorldSection& Section = SectionPair.Value;
-        float DistanceToPlayer = FVector::Dist(Section.WorldPosition, PlayerLocation);
+        float DistanceToPlayerSquared = FVector::DistSquared(Section.WorldPosition, PlayerLocation);
         
         // Update visibility based on distance
-        bool bShouldBeVisible = DistanceToPlayer <= (SectionSizeCm * 1.5f);
+        bool bShouldBeVisible = DistanceToPlayerSquared <= VisibilityDistanceSquared;
         
         if (Section.bIsVisible != bShouldBeVisible)
         {
@@ -523,6 +527,8 @@ TArray<FIntVector> UWorldStreamingManager::GetSectionsInRange(const FVector& Pla
     // 3x3 grid around player (adjustable based on MaxActiveSections)
     int32 GridRadius = FMath::FloorToInt(FMath::Sqrt(MaxActiveSections)) / 2;
     
+    float MaxStreamingDistanceSquared = MaxStreamingDistanceCm * MaxStreamingDistanceCm;
+
     for (int32 X = -GridRadius; X <= GridRadius; X++)
     {
         for (int32 Y = -GridRadius; Y <= GridRadius; Y++)
@@ -531,9 +537,9 @@ TArray<FIntVector> UWorldStreamingManager::GetSectionsInRange(const FVector& Pla
             
             // Check if within streaming distance
             FVector SectionWorldPos = SectionCoordinatesToWorld(SectionCoords);
-            float Distance = FVector::Dist(SectionWorldPos, PlayerLocation);
+            float DistanceSquared = FVector::DistSquared(SectionWorldPos, PlayerLocation);
             
-            if (Distance <= MaxStreamingDistanceCm)
+            if (DistanceSquared <= MaxStreamingDistanceSquared)
             {
                 SectionsInRange.Add(SectionCoords);
             }
@@ -547,18 +553,18 @@ EBiomeType UWorldStreamingManager::DetermineSectionBiome(const FIntVector& Secti
 {
     // Find the closest loaded section to determine transition context
     EBiomeType ContextBiome = EBiomeType::Countryside; // Default fallback
-    float ClosestDistance = MAX_FLT;
+    float ClosestDistanceSquared = MAX_FLT;
     
     for (auto& SectionPair : ActiveSections)
     {
-        float Distance = FVector::Dist(
+        float DistanceSquared = FVector::DistSquared(
             SectionCoordinatesToWorld(SectionCoordinates),
             SectionPair.Value.WorldPosition
         );
         
-        if (Distance < ClosestDistance)
+        if (DistanceSquared < ClosestDistanceSquared)
         {
-            ClosestDistance = Distance;
+            ClosestDistanceSquared = DistanceSquared;
             ContextBiome = SectionPair.Value.BiomeType;
         }
     }
