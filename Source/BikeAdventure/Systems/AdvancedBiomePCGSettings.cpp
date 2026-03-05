@@ -36,6 +36,10 @@ UMountainPCGSettings::UMountainPCGSettings()
     SnowCoverage = 0.2f;
     CaveEntranceChance = 0.05f;
     ElevationVariation = 1.5f;
+
+    // Add programmatic assets to arrays
+    RockMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Mountains/SM_MountainRock.SM_MountainRock"))));
+    AlpinePlantMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Mountains/SM_AlpinePlant.SM_AlpinePlant"))));
 }
 
 // Wetlands PCG Settings
