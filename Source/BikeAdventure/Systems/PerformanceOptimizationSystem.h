@@ -329,7 +329,7 @@ private:
     /**
      * Calculate LOD level for a given distance and biome
      */
-    int32 CalculateLODLevel(float Distance, EBiomeType BiomeType) const;
+    int32 CalculateLODLevel(float DistanceSquared, EBiomeType BiomeType) const;
 
     /**
      * Apply LOD to a static mesh component
@@ -339,7 +339,7 @@ private:
     /**
      * Apply optimization to particle system
      */
-    void ApplyParticleOptimization(UNiagaraComponent* ParticleSystem, float Distance, int32 OptimizationLevel);
+    void ApplyParticleOptimization(UNiagaraComponent* ParticleSystem, float DistanceSquared, int32 OptimizationLevel);
 
     /**
      * Register component for optimization tracking
