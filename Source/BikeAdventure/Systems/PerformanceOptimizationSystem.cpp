@@ -129,12 +129,12 @@ void UPerformanceOptimizationSystem::OptimizeObjectsInRadius(const FVector& Cent
     {
         if (UStaticMeshComponent* MeshComp = WeakComponent.Get())
         {
-            float Distance = FVector::Dist(MeshComp->GetComponentLocation(), Center);
-            if (Distance <= Radius)
+            float DistanceSquared = FVector::DistSquared(MeshComp->GetComponentLocation(), Center);
+            if (DistanceSquared <= Radius * Radius)
             {
                 // Determine biome type (simplified - in practice this would be more sophisticated)
                 EBiomeType BiomeType = EBiomeType::Countryside; // Default
-                int32 LODLevel = CalculateLODLevel(Distance, BiomeType);
+                int32 LODLevel = CalculateLODLevel(DistanceSquared, BiomeType);
                 ApplyMeshLOD(MeshComp, LODLevel);
             }
         }
@@ -145,10 +145,10 @@ void UPerformanceOptimizationSystem::OptimizeObjectsInRadius(const FVector& Cent
     {
         if (UNiagaraComponent* ParticleComp = WeakParticle.Get())
         {
-            float Distance = FVector::Dist(ParticleComp->GetComponentLocation(), Center);
-            if (Distance <= Radius)
+            float DistanceSquared = FVector::DistSquared(ParticleComp->GetComponentLocation(), Center);
+            if (DistanceSquared <= Radius * Radius)
             {
-                ApplyParticleOptimization(ParticleComp, Distance, OptimizationSettings.ParticleOptimizationLevel);
+                ApplyParticleOptimization(ParticleComp, DistanceSquared, OptimizationSettings.ParticleOptimizationLevel);
             }
         }
     }
@@ -331,12 +331,12 @@ void UPerformanceOptimizationSystem::UpdateComponentLODs(const FVector& PlayerLo
     {
         if (UStaticMeshComponent* MeshComp = WeakComponent.Get())
         {
-            float Distance = FVector::Dist(MeshComp->GetComponentLocation(), PlayerLocation);
+            float DistanceSquared = FVector::DistSquared(MeshComp->GetComponentLocation(), PlayerLocation);
             
             // Determine biome type for this component (simplified - would be more sophisticated in practice)
             EBiomeType BiomeType = EBiomeType::Countryside; // Default
             
-            int32 LODLevel = CalculateLODLevel(Distance, BiomeType);
+            int32 LODLevel = CalculateLODLevel(DistanceSquared, BiomeType);
             ApplyMeshLOD(MeshComp, LODLevel);
         }
     }
@@ -350,9 +350,9 @@ void UPerformanceOptimizationSystem::OptimizeParticleSystems(const FVector& Play
     {
         if (UNiagaraComponent* ParticleComp = WeakParticle.Get())
         {
-            float Distance = FVector::Dist(ParticleComp->GetComponentLocation(), PlayerLocation);
+            float DistanceSquared = FVector::DistSquared(ParticleComp->GetComponentLocation(), PlayerLocation);
             
-            ApplyParticleOptimization(ParticleComp, Distance, OptimizationSettings.ParticleOptimizationLevel);
+            ApplyParticleOptimization(ParticleComp, DistanceSquared, OptimizationSettings.ParticleOptimizationLevel);
             
             if (ParticleComp->IsActive())
             {
@@ -370,15 +370,15 @@ void UPerformanceOptimizationSystem::OptimizePCGActors(const FVector& PlayerLoca
     {
         if (APCGActor* PCGActor = WeakPCGActor.Get())
         {
-            float Distance = FVector::Dist(PCGActor->GetActorLocation(), PlayerLocation);
+            float DistanceSquared = FVector::DistSquared(PCGActor->GetActorLocation(), PlayerLocation);
             
             // Optimize PCG actor based on distance and performance settings
-            if (Distance > 5000.0f) // 5km
+            if (DistanceSquared > 25000000.0f) // 5km (5000^2)
             {
                 // Disable or reduce PCG generation at long distances
                 PCGActor->SetActorHiddenInGame(true);
             }
-            else if (Distance > 2000.0f) // 2km
+            else if (DistanceSquared > 4000000.0f) // 2km (2000^2)
             {
                 // Reduce PCG detail at medium distances
                 PCGActor->SetActorHiddenInGame(false);
@@ -393,7 +393,7 @@ void UPerformanceOptimizationSystem::OptimizePCGActors(const FVector& PlayerLoca
     }
 }
 
-int32 UPerformanceOptimizationSystem::CalculateLODLevel(float Distance, EBiomeType BiomeType) const
+int32 UPerformanceOptimizationSystem::CalculateLODLevel(float DistanceSquared, EBiomeType BiomeType) const
 {
     const FBiomeLODConfig* Config = BiomeLODConfigs.Find(BiomeType);
     if (!Config)
@@ -407,21 +407,22 @@ int32 UPerformanceOptimizationSystem::CalculateLODLevel(float Distance, EBiomeTy
     }
     
     // Apply adaptive LOD bias
-    float AdjustedDistance = Distance / CurrentLODBias;
+    // Since distance is squared, bias must be squared as well
+    float AdjustedDistanceSquared = DistanceSquared / (CurrentLODBias * CurrentLODBias);
     
-    if (AdjustedDistance <= Config->LOD0Distance)
+    if (AdjustedDistanceSquared <= (Config->LOD0Distance * Config->LOD0Distance))
     {
         return 0; // Highest detail
     }
-    else if (AdjustedDistance <= Config->LOD1Distance)
+    else if (AdjustedDistanceSquared <= (Config->LOD1Distance * Config->LOD1Distance))
     {
         return 1; // Medium detail
     }
-    else if (AdjustedDistance <= Config->LOD2Distance)
+    else if (AdjustedDistanceSquared <= (Config->LOD2Distance * Config->LOD2Distance))
     {
         return 2; // Low detail
     }
-    else if (AdjustedDistance <= Config->CullingDistance)
+    else if (AdjustedDistanceSquared <= (Config->CullingDistance * Config->CullingDistance))
     {
         return 3; // Lowest detail
     }
@@ -453,7 +454,7 @@ void UPerformanceOptimizationSystem::ApplyMeshLOD(UStaticMeshComponent* MeshComp
     MeshComponent->SetForcedLodModel(LODLevel + 1); // UE uses 1-based LOD indexing for forced LOD
 }
 
-void UPerformanceOptimizationSystem::ApplyParticleOptimization(UNiagaraComponent* ParticleSystem, float Distance, int32 OptimizationLevel)
+void UPerformanceOptimizationSystem::ApplyParticleOptimization(UNiagaraComponent* ParticleSystem, float DistanceSquared, int32 OptimizationLevel)
 {
     if (!ParticleSystem)
     {
@@ -464,15 +465,15 @@ void UPerformanceOptimizationSystem::ApplyParticleOptimization(UNiagaraComponent
     float IntensityMultiplier = 1.0f;
     
     // Distance-based optimization
-    if (Distance > 3000.0f)
+    if (DistanceSquared > 9000000.0f) // 3000^2
     {
         bShouldBeActive = false;
     }
-    else if (Distance > 1500.0f)
+    else if (DistanceSquared > 2250000.0f) // 1500^2
     {
         IntensityMultiplier = 0.5f;
     }
-    else if (Distance > 500.0f)
+    else if (DistanceSquared > 250000.0f) // 500^2
     {
         IntensityMultiplier = 0.7f;
     }
@@ -484,14 +485,14 @@ void UPerformanceOptimizationSystem::ApplyParticleOptimization(UNiagaraComponent
             break;
         case 1: // Moderate optimization
             IntensityMultiplier *= 0.7f;
-            if (Distance > 2000.0f)
+            if (DistanceSquared > 4000000.0f) // 2000^2
             {
                 bShouldBeActive = false;
             }
             break;
         case 2: // Aggressive optimization
             IntensityMultiplier *= 0.4f;
-            if (Distance > 1000.0f)
+            if (DistanceSquared > 1000000.0f) // 1000^2
             {
                 bShouldBeActive = false;
             }

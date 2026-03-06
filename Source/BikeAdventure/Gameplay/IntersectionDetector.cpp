@@ -34,9 +34,9 @@ void UIntersectionDetector::CheckForIntersection()
 	FVector CurrentLocation = GetOwner()->GetActorLocation();
 	
 	// Simple intersection detection based on distance traveled
-	float DistanceFromLastIntersection = FVector::Dist(CurrentLocation, LastIntersectionLocation);
+	float DistanceFromLastIntersectionSquared = FVector::DistSquared(CurrentLocation, LastIntersectionLocation);
 	
-	if (DistanceFromLastIntersection >= MinimumIntersectionDistance)
+	if (DistanceFromLastIntersectionSquared >= (MinimumIntersectionDistance * MinimumIntersectionDistance))
 	{
 		// Probability-based intersection detection (10% chance per check when eligible)
 		if (FMath::RandRange(0.0f, 1.0f) <= 0.1f)
