@@ -24,13 +24,14 @@ As part of the goal to dynamically generate content, there are Python scripts in
    # Append the path where scripts are if needed, or simply pass the path to execfile
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_mountain_assets.py").read())
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_urban_assets.py").read())
+   exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_countryside_assets.py").read())
    ```
-   Or if you prefer right-clicking, you can drag and drop `generate_mountain_assets.py` or `generate_urban_assets.py` into the Content Browser, right click the asset, and select **Run Editor Utility Python Script**.
+   Or if you prefer right-clicking, you can drag and drop `generate_mountain_assets.py`, `generate_urban_assets.py`, or `generate_countryside_assets.py` into the Content Browser, right click the asset, and select **Run Editor Utility Python Script**.
 
 ### Asset Outputs
 
 The scripts will:
-- Create `/Game/Art/Models/Mountains/`, `/Game/Art/Models/Urban/`, and `/Game/Art/Materials/`.
+- Create `/Game/Art/Models/Mountains/`, `/Game/Art/Models/Urban/`, `/Game/Art/Models/Countryside/`, and `/Game/Art/Materials/`.
 - Procedurally generate `SM_MountainRock` and `SM_AlpinePlant` for Mountains, and `SM_UrbanBuilding` and `SM_UrbanBench` for Urban, using simple primitive and geometry boolean/noise functions.
 - Procedurally construct master materials like `M_StylizedMaster` and `M_StylizedUrban`, and derived material instances (e.g., `MI_MountainRock`, `MI_UrbanBuilding`).
 - Assign these material instances to the corresponding static meshes.

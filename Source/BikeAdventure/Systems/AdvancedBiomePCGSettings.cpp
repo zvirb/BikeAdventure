@@ -28,6 +28,10 @@ UCountrysidePCGSettings::UCountrysidePCGSettings()
     FenceDensity = 0.4f;
     VillageChance = 0.1f;
     AnimalDensity = 0.2f;
+
+    // Add programmatic assets to arrays
+    FarmBuildingMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Countryside/SM_FarmHouse.SM_FarmHouse"))));
+    FenceMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Countryside/SM_CountrysideFence.SM_CountrysideFence"))));
 }
 
 // Mountain PCG Settings
