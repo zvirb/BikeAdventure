@@ -47,7 +47,8 @@ void UBikeMovementComponent::UpdateMovement(float DeltaTime)
 	Velocity *= FMath::Pow(Friction, DeltaTime);
 	
 	// Clamp to max speed
-	if (Velocity.Size() > MaxSpeed)
+	// Use squared length comparison to avoid expensive sqrt in tick function
+	if (Velocity.SizeSquared() > (MaxSpeed * MaxSpeed))
 	{
 		Velocity = Velocity.GetSafeNormal() * MaxSpeed;
 	}
