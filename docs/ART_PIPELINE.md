@@ -25,8 +25,9 @@ As part of the goal to dynamically generate content, there are Python scripts in
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_mountain_assets.py").read())
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_urban_assets.py").read())
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_countryside_assets.py").read())
+   exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_wetlands_assets.py").read())
    ```
-   Or if you prefer right-clicking, you can drag and drop `generate_mountain_assets.py`, `generate_urban_assets.py`, or `generate_countryside_assets.py` into the Content Browser, right click the asset, and select **Run Editor Utility Python Script**.
+   Or if you prefer right-clicking, you can drag and drop `generate_mountain_assets.py`, `generate_urban_assets.py`, `generate_countryside_assets.py`, or `generate_wetlands_assets.py` into the Content Browser, right click the asset, and select **Run Editor Utility Python Script**.
 
 ### Asset Outputs
 

@@ -59,6 +59,10 @@ UWetlandsPCGSettings::UWetlandsPCGSettings()
     BridgeChance = 0.3f;
     WildlifeActivity = 0.7f;
     FogIntensity = 0.5f;
+
+    // Add programmatic assets to arrays
+    WaterSurfaceMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Wetlands/SM_WaterBody.SM_WaterBody"))));
+    MarshPlantMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Wetlands/SM_MarshPlant.SM_MarshPlant"))));
 }
 
 // Advanced Biome Generation Element Implementation
