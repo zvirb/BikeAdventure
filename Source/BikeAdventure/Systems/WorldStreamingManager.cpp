@@ -124,7 +124,7 @@ void UWorldStreamingManager::CleanupDistantSections(const FVector& PlayerLocatio
         else
         {
             // Normal unloading conditions
-            if (DistanceToPlayer > MaxStreamingDistanceCm || TimeSinceAccess > UnloadTimeThreshold)
+            if (DistanceToPlayerSquared > (MaxStreamingDistanceCm * MaxStreamingDistanceCm) || TimeSinceAccess > UnloadTimeThreshold)
             {
                 bShouldUnload = true;
             }

@@ -1,3 +1,7 @@
 ## 2026-03-06 - Optimize Distance Calculations in Unreal Engine
 **Learning:** In performance-critical loops in Unreal Engine (like ticking components, optimization systems, or world streaming updates), using `FVector::Dist` calculates the exact Euclidean distance which requires an expensive square root operation. When simply comparing against a threshold distance, using `FVector::DistSquared` and comparing against the squared threshold avoids the square root and is significantly faster.
 **Action:** Replace `FVector::Dist` with `FVector::DistSquared` and square the comparison threshold whenever simply checking if a distance is greater than or less than a specific value, especially in loops running every frame like in `PerformanceOptimizationSystem` and `WorldStreamingManager`.
+
+## 2026-03-08 - Use squared distance checks in Unreal C++
+**Learning:** Found an inefficiency in `WorldStreamingManager.cpp` where `FVector::DistSquared` was computed, but the subsequent conditional statement inadvertently used `DistanceToPlayer` (which was likely intended to be the actual distance, potentially triggering a square root or behaving incorrectly) instead of the computed squared value `DistanceToPlayerSquared`.
+**Action:** When comparing distances in Unreal Engine C++, always use `FVector::DistSquared` or `SizeSquared()` and ensure the comparison variable matches the squared threshold (e.g., `MaxStreamingDistanceCm * MaxStreamingDistanceCm`) to avoid expensive operations inside performance-critical loops like world streaming section cleanup.
