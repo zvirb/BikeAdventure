@@ -199,6 +199,42 @@ public:
 };
 
 /**
+ * Desert-specific PCG settings with dunes and cacti
+ */
+UCLASS(BlueprintType, Blueprintable)
+class BIKEADVENTURE_API UDesertPCGSettings : public UBiomePCGSettings
+{
+    GENERATED_BODY()
+
+public:
+    UDesertPCGSettings();
+
+    // Cactus density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float CactusDensity;
+
+    // Rock formation density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float RockDensity;
+
+    // Sand dune variation intensity
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Generation", meta = (ClampMin = "0.0", ClampMax = "2.0"))
+    float DuneVariation;
+
+    // Oasis probability
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float OasisChance;
+
+    // Cactus and vegetation meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> CactusMeshes;
+
+    // Sandstone and rock meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> RockMeshes;
+};
+
+/**
  * Advanced PCG element for specialized biome generation
  */
 class BIKEADVENTURE_API FAdvancedBiomeGenerationElement : public IPCGElement
@@ -223,6 +259,9 @@ private:
 
     // Generate wetlands ecosystem
     void GenerateWetlandsEcosystem(FPCGContext* Context, const UWetlandsPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const;
+
+    // Generate desert landscape
+    void GenerateDesertLayout(FPCGContext* Context, const UDesertPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const;
 
     // Helper function to create point with biome-specific attributes
     FPCGPoint CreateBiomePoint(const FVector& Location, const FRotator& Rotation, const FVector& Scale, EBiomeType BiomeType, int32 MeshIndex = 0) const;

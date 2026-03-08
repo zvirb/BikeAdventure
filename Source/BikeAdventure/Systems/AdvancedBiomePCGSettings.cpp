@@ -50,6 +50,20 @@ UMountainPCGSettings::UMountainPCGSettings()
     AlpinePlantMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Mountains/SM_AlpinePlant.SM_AlpinePlant"))));
 }
 
+// Desert PCG Settings
+UDesertPCGSettings::UDesertPCGSettings()
+{
+    BiomeType = EBiomeType::Desert;
+    CactusDensity = 0.4f;
+    RockDensity = 0.3f;
+    DuneVariation = 1.0f;
+    OasisChance = 0.05f;
+
+    // Add programmatic assets to arrays
+    CactusMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Desert/SM_DesertCactus.SM_DesertCactus"))));
+    RockMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Desert/SM_DesertRock.SM_DesertRock"))));
+}
+
 // Wetlands PCG Settings
 UWetlandsPCGSettings::UWetlandsPCGSettings()
 {
@@ -125,6 +139,13 @@ bool FAdvancedBiomeGenerationElement::ExecuteInternal(FPCGContext* Context) cons
             }
             break;
             
+        case EBiomeType::Desert:
+            if (const UDesertPCGSettings* DesertSettings = Cast<UDesertPCGSettings>(Settings))
+            {
+                GenerateDesertLayout(Context, DesertSettings, OutputPoints);
+            }
+            break;
+
         default:
             // Fall back to base implementation for other biomes
             {
@@ -553,6 +574,61 @@ void FAdvancedBiomeGenerationElement::GenerateWetlandsEcosystem(FPCGContext* Con
     }
 }
 
+void FAdvancedBiomeGenerationElement::GenerateDesertLayout(FPCGContext* Context, const UDesertPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const
+{
+    FRandomStream Random(FMath::Rand());
+
+    // Generate cacti
+    int32 NumCacti = FMath::RoundToInt(200.0f * Settings->CactusDensity);
+    for (int32 i = 0; i < NumCacti; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-2000.0f, 2000.0f),
+            0.0f
+        );
+
+        FRotator Rotation(
+            Random.FRandRange(-5.0f, 5.0f),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(-5.0f, 5.0f)
+        );
+
+        FVector Scale(Random.FRandRange(0.8f, 1.5f));
+
+        FPCGPoint CactusPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Desert, 0);
+        CactusPoint.Density = Settings->CactusDensity;
+        ApplyBiomeAttributes(CactusPoint, EBiomeType::Desert, TEXT("Cactus"));
+
+        OutPoints.Add(CactusPoint);
+    }
+
+    // Generate rocks
+    int32 NumRocks = FMath::RoundToInt(150.0f * Settings->RockDensity);
+    for (int32 i = 0; i < NumRocks; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-2000.0f, 2000.0f),
+            0.0f
+        );
+
+        FRotator Rotation(
+            Random.FRandRange(-20.0f, 20.0f),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(-20.0f, 20.0f)
+        );
+
+        FVector Scale(Random.FRandRange(0.5f, 2.5f));
+
+        FPCGPoint RockPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Desert, 1);
+        RockPoint.Density = Settings->RockDensity;
+        ApplyBiomeAttributes(RockPoint, EBiomeType::Desert, TEXT("Rock"));
+
+        OutPoints.Add(RockPoint);
+    }
+}
+
 FPCGPoint FAdvancedBiomeGenerationElement::CreateBiomePoint(const FVector& Location, const FRotator& Rotation, const FVector& Scale, EBiomeType BiomeType, int32 MeshIndex) const
 {
     FPCGPoint Point;
@@ -584,6 +660,9 @@ void FAdvancedBiomeGenerationElement::ApplyBiomeAttributes(FPCGPoint& Point, EBi
             break;
         case EBiomeType::Wetlands:
             Point.Color = FVector4(0.3f, 0.5f, 0.8f, 1.0f); // Blue for wetlands
+            break;
+        case EBiomeType::Desert:
+            Point.Color = FVector4(0.8f, 0.7f, 0.4f, 1.0f); // Sand/Yellow for desert
             break;
         default:
             Point.Color = FVector4(1.0f, 1.0f, 1.0f, 1.0f);
