@@ -7,6 +7,34 @@
 #include "AdvancedBiomePCGSettings.generated.h"
 
 /**
+ * Forest-specific PCG settings with trees and rocks
+ */
+UCLASS(BlueprintType, Blueprintable)
+class BIKEADVENTURE_API UForestPCGSettings : public UBiomePCGSettings
+{
+    GENERATED_BODY()
+
+public:
+    UForestPCGSettings();
+
+    // Tree density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float TreeDensity;
+
+    // Rock density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float RockDensity;
+
+    // Tree meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> TreeMeshes;
+
+    // Rock meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> RockMeshes;
+};
+
+/**
  * Urban-specific PCG settings with detailed city generation
  */
 UCLASS(BlueprintType, Blueprintable)
@@ -248,6 +276,9 @@ protected:
     virtual bool IsCacheable(const UPCGSettings* InSettings) const override { return true; }
 
 private:
+    // Generate forest layout
+    void GenerateForestLayout(FPCGContext* Context, const UForestPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const;
+
     // Generate urban layout
     void GenerateUrbanLayout(FPCGContext* Context, const UUrbanPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const;
 

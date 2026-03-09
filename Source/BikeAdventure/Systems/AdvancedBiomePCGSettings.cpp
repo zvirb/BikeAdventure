@@ -5,6 +5,18 @@
 #include "Engine/Engine.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 
+// Forest PCG Settings
+UForestPCGSettings::UForestPCGSettings()
+{
+    BiomeType = EBiomeType::Forest;
+    TreeDensity = 0.4f; // Lowered to meet 60 FPS constraint
+    RockDensity = 0.3f;
+
+    // Add programmatic assets to arrays
+    TreeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_PineTree.SM_PineTree"))));
+    RockMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_ForestRock.SM_ForestRock"))));
+}
+
 // Urban PCG Settings
 UUrbanPCGSettings::UUrbanPCGSettings()
 {
@@ -111,6 +123,13 @@ bool FAdvancedBiomeGenerationElement::ExecuteInternal(FPCGContext* Context) cons
     // Generate points based on biome type
     switch (Settings->BiomeType)
     {
+        case EBiomeType::Forest:
+            if (const UForestPCGSettings* ForestSettings = Cast<UForestPCGSettings>(Settings))
+            {
+                GenerateForestLayout(Context, ForestSettings, OutputPoints);
+            }
+            break;
+
         case EBiomeType::Urban:
             if (const UUrbanPCGSettings* UrbanSettings = Cast<UUrbanPCGSettings>(Settings))
             {
@@ -175,6 +194,61 @@ bool FAdvancedBiomeGenerationElement::ExecuteInternal(FPCGContext* Context) cons
     
     Context->OutputData.TaggedData.Emplace_GetRef().Data = OutputData;
     return true;
+}
+
+void FAdvancedBiomeGenerationElement::GenerateForestLayout(FPCGContext* Context, const UForestPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const
+{
+    FRandomStream Random(FMath::Rand());
+
+    // Generate trees
+    int32 NumTrees = FMath::RoundToInt(800.0f * Settings->TreeDensity);
+    for (int32 i = 0; i < NumTrees; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-2000.0f, 2000.0f),
+            0.0f
+        );
+
+        FRotator Rotation(
+            Random.FRandRange(-5.0f, 5.0f),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(-5.0f, 5.0f)
+        );
+
+        FVector Scale(Random.FRandRange(0.8f, 1.5f));
+
+        FPCGPoint TreePoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Forest, 0);
+        TreePoint.Density = Settings->TreeDensity;
+        ApplyBiomeAttributes(TreePoint, EBiomeType::Forest, TEXT("Tree"));
+
+        OutPoints.Add(TreePoint);
+    }
+
+    // Generate rocks
+    int32 NumRocks = FMath::RoundToInt(200.0f * Settings->RockDensity);
+    for (int32 i = 0; i < NumRocks; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-2000.0f, 2000.0f),
+            0.0f
+        );
+
+        FRotator Rotation(
+            Random.FRandRange(-20.0f, 20.0f),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(-20.0f, 20.0f)
+        );
+
+        FVector Scale(Random.FRandRange(0.5f, 2.0f));
+
+        FPCGPoint RockPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Forest, 1);
+        RockPoint.Density = Settings->RockDensity;
+        ApplyBiomeAttributes(RockPoint, EBiomeType::Forest, TEXT("Rock"));
+
+        OutPoints.Add(RockPoint);
+    }
 }
 
 void FAdvancedBiomeGenerationElement::GenerateUrbanLayout(FPCGContext* Context, const UUrbanPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const
