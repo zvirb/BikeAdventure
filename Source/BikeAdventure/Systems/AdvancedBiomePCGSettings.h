@@ -7,6 +7,34 @@
 #include "AdvancedBiomePCGSettings.generated.h"
 
 /**
+ * Beach-specific PCG settings with palm trees and sandcastles
+ */
+UCLASS(BlueprintType, Blueprintable)
+class BIKEADVENTURE_API UBeachPCGSettings : public UBiomePCGSettings
+{
+    GENERATED_BODY()
+
+public:
+    UBeachPCGSettings();
+
+    // Palm tree density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float PalmTreeDensity;
+
+    // Sandcastle probability
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float SandcastleChance;
+
+    // Palm tree meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> PalmTreeMeshes;
+
+    // Sandcastle meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> SandcastleMeshes;
+};
+
+/**
  * Forest-specific PCG settings with trees and rocks
  */
 UCLASS(BlueprintType, Blueprintable)
@@ -276,6 +304,9 @@ protected:
     virtual bool IsCacheable(const UPCGSettings* InSettings) const override { return true; }
 
 private:
+    // Generate beach layout
+    void GenerateBeachLayout(FPCGContext* Context, const UBeachPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const;
+
     // Generate forest layout
     void GenerateForestLayout(FPCGContext* Context, const UForestPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const;
 

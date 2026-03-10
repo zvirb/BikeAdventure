@@ -5,6 +5,18 @@
 #include "Engine/Engine.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 
+// Beach PCG Settings
+UBeachPCGSettings::UBeachPCGSettings()
+{
+    BiomeType = EBiomeType::Beach;
+    PalmTreeDensity = 0.3f;
+    SandcastleChance = 0.1f;
+
+    // Add programmatic assets to arrays
+    PalmTreeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Beach/SM_PalmTree.SM_PalmTree"))));
+    SandcastleMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Beach/SM_Sandcastle.SM_Sandcastle"))));
+}
+
 // Forest PCG Settings
 UForestPCGSettings::UForestPCGSettings()
 {
@@ -123,6 +135,13 @@ bool FAdvancedBiomeGenerationElement::ExecuteInternal(FPCGContext* Context) cons
     // Generate points based on biome type
     switch (Settings->BiomeType)
     {
+        case EBiomeType::Beach:
+            if (const UBeachPCGSettings* BeachSettings = Cast<UBeachPCGSettings>(Settings))
+            {
+                GenerateBeachLayout(Context, BeachSettings, OutputPoints);
+            }
+            break;
+
         case EBiomeType::Forest:
             if (const UForestPCGSettings* ForestSettings = Cast<UForestPCGSettings>(Settings))
             {
@@ -194,6 +213,63 @@ bool FAdvancedBiomeGenerationElement::ExecuteInternal(FPCGContext* Context) cons
     
     Context->OutputData.TaggedData.Emplace_GetRef().Data = OutputData;
     return true;
+}
+
+void FAdvancedBiomeGenerationElement::GenerateBeachLayout(FPCGContext* Context, const UBeachPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const
+{
+    FRandomStream Random(FMath::Rand());
+
+    // Generate palm trees
+    int32 NumTrees = FMath::RoundToInt(400.0f * Settings->PalmTreeDensity);
+    for (int32 i = 0; i < NumTrees; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-2000.0f, 2000.0f),
+            0.0f
+        );
+
+        FRotator Rotation(
+            Random.FRandRange(-10.0f, 10.0f),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(-10.0f, 10.0f)
+        );
+
+        FVector Scale(Random.FRandRange(0.8f, 1.5f));
+
+        FPCGPoint TreePoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Beach, 0);
+        TreePoint.Density = Settings->PalmTreeDensity;
+        ApplyBiomeAttributes(TreePoint, EBiomeType::Beach, TEXT("PalmTree"));
+
+        OutPoints.Add(TreePoint);
+    }
+
+    // Generate sandcastles
+    if (Random.FRand() < Settings->SandcastleChance)
+    {
+        int32 NumSandcastles = Random.RandRange(1, 5);
+        for (int32 i = 0; i < NumSandcastles; i++)
+        {
+            FVector Location(
+                Random.FRandRange(-1500.0f, 1500.0f),
+                Random.FRandRange(-1500.0f, 1500.0f),
+                0.0f
+            );
+
+            FRotator Rotation(
+                0.0f,
+                Random.FRandRange(0.0f, 360.0f),
+                0.0f
+            );
+
+            FVector Scale(Random.FRandRange(0.5f, 1.2f));
+
+            FPCGPoint SandcastlePoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Beach, 1);
+            ApplyBiomeAttributes(SandcastlePoint, EBiomeType::Beach, TEXT("Sandcastle"));
+
+            OutPoints.Add(SandcastlePoint);
+        }
+    }
 }
 
 void FAdvancedBiomeGenerationElement::GenerateForestLayout(FPCGContext* Context, const UForestPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const
@@ -723,6 +799,9 @@ void FAdvancedBiomeGenerationElement::ApplyBiomeAttributes(FPCGPoint& Point, EBi
     // Set color based on biome type for identification
     switch (BiomeType)
     {
+        case EBiomeType::Beach:
+            Point.Color = FVector4(0.9f, 0.8f, 0.5f, 1.0f); // Sandy yellow for beach
+            break;
         case EBiomeType::Urban:
             Point.Color = FVector4(0.5f, 0.5f, 0.7f, 1.0f); // Blue-gray for urban
             break;
