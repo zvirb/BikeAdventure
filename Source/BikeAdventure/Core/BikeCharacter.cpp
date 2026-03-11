@@ -31,6 +31,13 @@ void ABikeCharacter::SetupComponents()
 	BikeMesh->SetupAttachment(RootComponent);
 	BikeMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	// Load procedurally generated bike mesh
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> BikeMeshAsset(TEXT("/Game/Art/Models/Character/SM_Bike.SM_Bike"));
+	if (BikeMeshAsset.Succeeded())
+	{
+		BikeMesh->SetStaticMesh(BikeMeshAsset.Object);
+	}
+
 	// Create camera boom
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(RootComponent);
