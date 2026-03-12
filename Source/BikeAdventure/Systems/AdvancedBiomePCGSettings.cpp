@@ -56,6 +56,8 @@ UCountrysidePCGSettings::UCountrysidePCGSettings()
     // Add programmatic assets to arrays
     FarmBuildingMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Countryside/SM_FarmHouse.SM_FarmHouse"))));
     FenceMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Countryside/SM_CountrysideFence.SM_CountrysideFence"))));
+    CropMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Countryside/SM_Crop.SM_Crop"))));
+    AnimalMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Countryside/SM_Animal.SM_Animal"))));
 }
 
 // Mountain PCG Settings
