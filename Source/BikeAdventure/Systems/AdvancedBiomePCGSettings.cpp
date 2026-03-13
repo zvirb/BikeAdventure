@@ -103,6 +103,7 @@ UWetlandsPCGSettings::UWetlandsPCGSettings()
     // Add programmatic assets to arrays
     WaterSurfaceMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Wetlands/SM_WaterBody.SM_WaterBody"))));
     MarshPlantMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Wetlands/SM_MarshPlant.SM_MarshPlant"))));
+    BridgeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Wetlands/SM_WetlandsBridge.SM_WetlandsBridge"))));
 }
 
 // Advanced Biome Generation Element Implementation
