@@ -186,6 +186,142 @@ def generate_water_body(mesh_path, mat_inst):
     except Exception as e:
         print(f"GeometryScript bake failed: {e}")
 
+def generate_wetlands_bridge(mesh_path, mat_inst):
+    if unreal.EditorAssetLibrary.does_asset_exist(mesh_path):
+        print(f"Asset already exists: {mesh_path}")
+        return
+
+    try:
+        dyn_mesh = unreal.GeometryScriptLibrary_CreateNewDynamicMesh.create_new_dynamic_mesh()
+    except AttributeError:
+        try:
+            dyn_mesh = unreal.GeometryScript_AssetUtils.create_new_dynamic_mesh()
+        except AttributeError:
+            dyn_mesh = unreal.DynamicMesh()
+
+    options = unreal.GeometryScriptPrimitiveOptions()
+
+    try:
+        if hasattr(unreal, "GeometryScriptLibrary_MeshPrimitiveFunctions"):
+            # Main walkway
+            walkway_transform = unreal.Transform()
+            walkway_transform.translation = [0.0, 0.0, 10.0]
+            unreal.GeometryScriptLibrary_MeshPrimitiveFunctions.append_box(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=walkway_transform,
+                dimension_x=400.0,
+                dimension_y=100.0,
+                dimension_z=10.0,
+                steps_x=1,
+                steps_y=1,
+                steps_z=1,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.CENTER
+            )
+
+            # Left rail
+            left_rail_transform = unreal.Transform()
+            left_rail_transform.translation = [0.0, -45.0, 30.0]
+            unreal.GeometryScriptLibrary_MeshPrimitiveFunctions.append_box(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=left_rail_transform,
+                dimension_x=400.0,
+                dimension_y=5.0,
+                dimension_z=10.0,
+                steps_x=1,
+                steps_y=1,
+                steps_z=1,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.CENTER
+            )
+
+            # Right rail
+            right_rail_transform = unreal.Transform()
+            right_rail_transform.translation = [0.0, 45.0, 30.0]
+            unreal.GeometryScriptLibrary_MeshPrimitiveFunctions.append_box(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=right_rail_transform,
+                dimension_x=400.0,
+                dimension_y=5.0,
+                dimension_z=10.0,
+                steps_x=1,
+                steps_y=1,
+                steps_z=1,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.CENTER
+            )
+        else:
+            # Main walkway
+            walkway_transform = unreal.Transform()
+            walkway_transform.translation = [0.0, 0.0, 10.0]
+            unreal.GeometryScript_MeshPrimitiveFunctions.append_box(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=walkway_transform,
+                dimension_x=400.0,
+                dimension_y=100.0,
+                dimension_z=10.0,
+                steps_x=1,
+                steps_y=1,
+                steps_z=1,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.CENTER
+            )
+
+            # Left rail
+            left_rail_transform = unreal.Transform()
+            left_rail_transform.translation = [0.0, -45.0, 30.0]
+            unreal.GeometryScript_MeshPrimitiveFunctions.append_box(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=left_rail_transform,
+                dimension_x=400.0,
+                dimension_y=5.0,
+                dimension_z=10.0,
+                steps_x=1,
+                steps_y=1,
+                steps_z=1,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.CENTER
+            )
+
+            # Right rail
+            right_rail_transform = unreal.Transform()
+            right_rail_transform.translation = [0.0, 45.0, 30.0]
+            unreal.GeometryScript_MeshPrimitiveFunctions.append_box(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=right_rail_transform,
+                dimension_x=400.0,
+                dimension_y=5.0,
+                dimension_z=10.0,
+                steps_x=1,
+                steps_y=1,
+                steps_z=1,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.CENTER
+            )
+    except Exception as e:
+        print(f"GeometryScript generation failed: {e}")
+        return
+
+    create_options = unreal.GeometryScriptCreateNewStaticMeshAssetOptions()
+    try:
+        if hasattr(unreal, "GeometryScriptLibrary_CreateNewStaticMeshAssetFromDynamicMesh"):
+            static_mesh = unreal.GeometryScriptLibrary_CreateNewStaticMeshAssetFromDynamicMesh.create_new_static_mesh_asset_from_dynamic_mesh(
+                dynamic_mesh=dyn_mesh,
+                asset_path_and_name=mesh_path,
+                options=create_options
+            )
+        else:
+            static_mesh = unreal.GeometryScript_AssetUtils.create_new_static_mesh_asset_from_dynamic_mesh(
+                dynamic_mesh=dyn_mesh,
+                asset_path_and_name=mesh_path,
+                options=create_options
+            )
+
+        # Apply material
+        assign_material_to_mesh(static_mesh, mat_inst)
+    except Exception as e:
+        print(f"GeometryScript bake failed: {e}")
+
 def generate_marsh_plant(mesh_path, mat_inst):
     if unreal.EditorAssetLibrary.does_asset_exist(mesh_path):
         print(f"Asset already exists: {mesh_path}")
@@ -309,6 +445,12 @@ def main():
 
     plant_mesh_path = f"{base_dir}/SM_MarshPlant"
     generate_marsh_plant(plant_mesh_path, plant_mat)
+
+    bridge_mat_path = f"{mat_dir}/MI_WetlandsBridge"
+    bridge_mat = create_material_instance(bridge_mat_path, master_mat, [0.3, 0.2, 0.1, 1.0], 0.8) # Brown, rough wood
+
+    bridge_mesh_path = f"{base_dir}/SM_WetlandsBridge"
+    generate_wetlands_bridge(bridge_mesh_path, bridge_mat)
 
     print("Asset generation for Wetlands biome complete.")
 
