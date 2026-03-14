@@ -246,6 +246,74 @@ def generate_alpine_plant(mesh_path, mat_inst):
         print(f"GeometryScript mesh bake failed: {e}")
 
 
+def generate_mountain_cliff(mesh_path, mat_inst):
+    if unreal.EditorAssetLibrary.does_asset_exist(mesh_path):
+        print(f"Asset already exists: {mesh_path}")
+        return
+
+    try:
+        dyn_mesh = unreal.GeometryScriptLibrary_CreateNewDynamicMesh.create_new_dynamic_mesh()
+    except AttributeError:
+        try:
+            dyn_mesh = unreal.GeometryScript_AssetUtils.create_new_dynamic_mesh()
+        except AttributeError:
+            dyn_mesh = unreal.DynamicMesh()
+
+    options = unreal.GeometryScriptPrimitiveOptions()
+    transform = unreal.Transform()
+
+    try:
+        if hasattr(unreal, "GeometryScriptLibrary_MeshPrimitiveFunctions"):
+            unreal.GeometryScriptLibrary_MeshPrimitiveFunctions.append_box(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=transform,
+                dimension_x=400.0,
+                dimension_y=200.0,
+                dimension_z=500.0,
+                steps_x=3,
+                steps_y=3,
+                steps_z=3,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+            )
+        else:
+            unreal.GeometryScript_MeshPrimitiveFunctions.append_box(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=transform,
+                dimension_x=400.0,
+                dimension_y=200.0,
+                dimension_z=500.0,
+                steps_x=3,
+                steps_y=3,
+                steps_z=3,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+            )
+    except Exception as e:
+        print(f"GeometryScript generation failed: {e}")
+        return
+
+    create_options = unreal.GeometryScriptCreateNewStaticMeshAssetOptions()
+    try:
+        if hasattr(unreal, "GeometryScriptLibrary_CreateNewStaticMeshAssetFromDynamicMesh"):
+            static_mesh = unreal.GeometryScriptLibrary_CreateNewStaticMeshAssetFromDynamicMesh.create_new_static_mesh_asset_from_dynamic_mesh(
+                dynamic_mesh=dyn_mesh,
+                asset_path_and_name=mesh_path,
+                options=create_options
+            )
+        else:
+            static_mesh = unreal.GeometryScript_AssetUtils.create_new_static_mesh_asset_from_dynamic_mesh(
+                dynamic_mesh=dyn_mesh,
+                asset_path_and_name=mesh_path,
+                options=create_options
+            )
+
+        # Apply material
+        assign_material_to_mesh(static_mesh, mat_inst)
+    except Exception as e:
+        print(f"GeometryScript bake failed: {e}")
+
+
 def generate_mountain_rock(mesh_path, mat_inst):
     if unreal.EditorAssetLibrary.does_asset_exist(mesh_path):
         print(f"Asset already exists: {mesh_path}")
@@ -333,12 +401,18 @@ def main():
     rock_mat_path = f"{mat_dir}/MI_MountainRock"
     rock_mat = create_material_instance(rock_mat_path, master_mat, [0.3, 0.3, 0.3, 1.0], 0.9)
 
+    cliff_mat_path = f"{mat_dir}/MI_MountainCliff"
+    cliff_mat = create_material_instance(cliff_mat_path, master_mat, [0.4, 0.35, 0.35, 1.0], 0.9)
+
     # Programmatic 3D Modeling
     plant_mesh_path = f"{base_dir}/SM_AlpinePlant"
     generate_alpine_plant(plant_mesh_path, plant_mat)
 
     rock_mesh_path = f"{base_dir}/SM_MountainRock"
     generate_mountain_rock(rock_mesh_path, rock_mat)
+
+    cliff_mesh_path = f"{base_dir}/SM_MountainCliff"
+    generate_mountain_cliff(cliff_mesh_path, cliff_mat)
 
     print("Asset generation for Mountains biome complete.")
 
