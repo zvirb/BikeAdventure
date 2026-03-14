@@ -74,6 +74,7 @@ UMountainPCGSettings::UMountainPCGSettings()
     // Add programmatic assets to arrays
     RockMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Mountains/SM_MountainRock.SM_MountainRock"))));
     AlpinePlantMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Mountains/SM_AlpinePlant.SM_AlpinePlant"))));
+    CliffMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Mountains/SM_MountainCliff.SM_MountainCliff"))));
 }
 
 // Desert PCG Settings
