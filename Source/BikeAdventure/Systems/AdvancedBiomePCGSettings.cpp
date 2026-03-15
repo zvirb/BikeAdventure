@@ -41,6 +41,7 @@ UUrbanPCGSettings::UUrbanPCGSettings()
     // Add programmatic assets to arrays
     BuildingMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBuilding.SM_UrbanBuilding"))));
     StreetFurnitureMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBench.SM_UrbanBench"))));
+    TrafficElementMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanTrafficLight.SM_UrbanTrafficLight"))));
 }
 
 // Countryside PCG Settings

@@ -347,6 +347,103 @@ def generate_urban_bench(mesh_path, mat_inst):
     except Exception as e:
         print(f"GeometryScript bake failed: {e}")
 
+def generate_urban_traffic_light(mesh_path, mat_inst):
+    if unreal.EditorAssetLibrary.does_asset_exist(mesh_path):
+        print(f"Asset already exists: {mesh_path}")
+        return
+
+    try:
+        dyn_mesh = unreal.GeometryScriptLibrary_CreateNewDynamicMesh.create_new_dynamic_mesh()
+    except AttributeError:
+        try:
+            dyn_mesh = unreal.GeometryScript_AssetUtils.create_new_dynamic_mesh()
+        except AttributeError:
+            dyn_mesh = unreal.DynamicMesh()
+
+    options = unreal.GeometryScriptPrimitiveOptions()
+
+    try:
+        # Post
+        post_transform = unreal.Transform()
+        post_transform.translation = [0.0, 0.0, 150.0]
+        if hasattr(unreal, "GeometryScriptLibrary_MeshPrimitiveFunctions"):
+            unreal.GeometryScriptLibrary_MeshPrimitiveFunctions.append_cylinder(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=post_transform,
+                radius=10.0,
+                height=300.0,
+                radial_steps=8,
+                height_steps=1,
+                capped=True,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.CENTER
+            )
+            # Box head
+            head_transform = unreal.Transform()
+            head_transform.translation = [15.0, 0.0, 260.0]
+            unreal.GeometryScriptLibrary_MeshPrimitiveFunctions.append_box(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=head_transform,
+                dimension_x=20.0,
+                dimension_y=40.0,
+                dimension_z=100.0,
+                steps_x=1,
+                steps_y=1,
+                steps_z=1,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.CENTER
+            )
+        else:
+            unreal.GeometryScript_MeshPrimitiveFunctions.append_cylinder(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=post_transform,
+                radius=10.0,
+                height=300.0,
+                radial_steps=8,
+                height_steps=1,
+                capped=True,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.CENTER
+            )
+            # Box head
+            head_transform = unreal.Transform()
+            head_transform.translation = [15.0, 0.0, 260.0]
+            unreal.GeometryScript_MeshPrimitiveFunctions.append_box(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=head_transform,
+                dimension_x=20.0,
+                dimension_y=40.0,
+                dimension_z=100.0,
+                steps_x=1,
+                steps_y=1,
+                steps_z=1,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.CENTER
+            )
+    except Exception as e:
+        print(f"GeometryScript generation failed: {e}")
+        return
+
+    create_options = unreal.GeometryScriptCreateNewStaticMeshAssetOptions()
+    try:
+        if hasattr(unreal, "GeometryScriptLibrary_CreateNewStaticMeshAssetFromDynamicMesh"):
+            static_mesh = unreal.GeometryScriptLibrary_CreateNewStaticMeshAssetFromDynamicMesh.create_new_static_mesh_asset_from_dynamic_mesh(
+                dynamic_mesh=dyn_mesh,
+                asset_path_and_name=mesh_path,
+                options=create_options
+            )
+        else:
+            static_mesh = unreal.GeometryScript_AssetUtils.create_new_static_mesh_asset_from_dynamic_mesh(
+                dynamic_mesh=dyn_mesh,
+                asset_path_and_name=mesh_path,
+                options=create_options
+            )
+
+        # Apply material
+        assign_material_to_mesh(static_mesh, mat_inst)
+    except Exception as e:
+        print(f"GeometryScript bake failed: {e}")
+
 def main():
     base_dir = '/Game/Art/Models/Urban'
     mat_dir = '/Game/Art/Materials'
@@ -365,12 +462,18 @@ def main():
     bench_mat_path = f"{mat_dir}/MI_UrbanBench"
     bench_mat = create_material_instance(bench_mat_path, master_mat, [0.4, 0.25, 0.1, 1.0], 0.6)
 
+    traffic_light_mat_path = f"{mat_dir}/MI_UrbanTrafficLight"
+    traffic_light_mat = create_material_instance(traffic_light_mat_path, master_mat, [0.1, 0.1, 0.1, 1.0], 0.3)
+
     # Programmatic 3D Modeling
     building_mesh_path = f"{base_dir}/SM_UrbanBuilding"
     generate_urban_building(building_mesh_path, building_mat)
 
     bench_mesh_path = f"{base_dir}/SM_UrbanBench"
     generate_urban_bench(bench_mesh_path, bench_mat)
+
+    traffic_light_mesh_path = f"{base_dir}/SM_UrbanTrafficLight"
+    generate_urban_traffic_light(traffic_light_mesh_path, traffic_light_mat)
 
     print("Asset generation for Urban biome complete.")
 
