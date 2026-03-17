@@ -350,7 +350,7 @@ public:
     FString Description;
 
     // Target biome type
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Preset Info")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Preset Info", meta = (AssetRegistrySearchable))
     EBiomeType TargetBiome;
 
     // Generation parameters for this preset
@@ -408,11 +408,19 @@ public:
     UBiomePCGSettings* CreatePCGSettingsFromPreset(UBiomeGenerationPreset* Preset);
 
 protected:
-    // Loaded biome presets mapped by biome type
+    // Discovered biome presets mapped by biome type (not yet loaded)
     UPROPERTY()
-    TMap<EBiomeType, TArray<UBiomeGenerationPreset*>> BiomePresets;
+    TMap<EBiomeType, TArray<TSoftObjectPtr<UBiomeGenerationPreset>>> BiomePresets;
 
-    // Default presets for each biome
+    // Discovered default presets for each biome
     UPROPERTY()
-    TMap<EBiomeType, UBiomeGenerationPreset*> DefaultPresets;
+    TMap<EBiomeType, TSoftObjectPtr<UBiomeGenerationPreset>> DefaultPresets;
+
+    // Cache of loaded presets to prevent repeated synchronous loading
+    UPROPERTY()
+    TMap<EBiomeType, TArray<UBiomeGenerationPreset*>> LoadedBiomePresets;
+
+    // Cache of loaded default presets
+    UPROPERTY()
+    TMap<EBiomeType, UBiomeGenerationPreset*> LoadedDefaultPresets;
 };
