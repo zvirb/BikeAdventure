@@ -54,12 +54,19 @@ if (-not (Test-Path $ProjectFile)) {
 function Run-UnitTests {
     Write-Host "Running Unit Tests..." -ForegroundColor Yellow
     
-    $UnitTestCmd = "`"$UnrealEditor`" `"$ProjectFile`" -ExecCmds=`"Automation RunTests BikeAdventure.Unit;Quit`" -unattended -nullrhi -nosound -log=`"$TestSessionDir\unit_tests.log`""
+    $Arguments = @(
+        $ProjectFile,
+        "-ExecCmds=Automation RunTests BikeAdventure.Unit;Quit",
+        "-unattended",
+        "-nullrhi",
+        "-nosound",
+        "-log=$TestSessionDir\unit_tests.log"
+    )
     
-    Write-Host "Executing: $UnitTestCmd"
+    Write-Host "Executing: $UnrealEditor $($Arguments -join ' ')"
     
     try {
-        Invoke-Expression $UnitTestCmd
+        & $UnrealEditor @Arguments
         Write-Host "✓ Unit tests completed" -ForegroundColor Green
         return $true
     }
@@ -73,12 +80,19 @@ function Run-UnitTests {
 function Run-IntegrationTests {
     Write-Host "Running Integration Tests..." -ForegroundColor Yellow
     
-    $IntegrationTestCmd = "`"$UnrealEditor`" `"$ProjectFile`" -ExecCmds=`"Automation RunTests BikeAdventure.Integration;Quit`" -unattended -nullrhi -nosound -log=`"$TestSessionDir\integration_tests.log`""
+    $Arguments = @(
+        $ProjectFile,
+        "-ExecCmds=Automation RunTests BikeAdventure.Integration;Quit",
+        "-unattended",
+        "-nullrhi",
+        "-nosound",
+        "-log=$TestSessionDir\integration_tests.log"
+    )
     
-    Write-Host "Executing: $IntegrationTestCmd"
+    Write-Host "Executing: $UnrealEditor $($Arguments -join ' ')"
     
     try {
-        Invoke-Expression $IntegrationTestCmd
+        & $UnrealEditor @Arguments
         Write-Host "✓ Integration tests completed" -ForegroundColor Green
         return $true
     }
@@ -92,12 +106,19 @@ function Run-IntegrationTests {
 function Run-PerformanceTests {
     Write-Host "Running Performance Tests..." -ForegroundColor Yellow
     
-    $PerfTestCmd = "`"$UnrealEditor`" `"$ProjectFile`" -ExecCmds=`"Automation RunTests BikeAdventure.Performance;Quit`" -unattended -nullrhi -nosound -log=`"$TestSessionDir\performance_tests.log`""
+    $Arguments = @(
+        $ProjectFile,
+        "-ExecCmds=Automation RunTests BikeAdventure.Performance;Quit",
+        "-unattended",
+        "-nullrhi",
+        "-nosound",
+        "-log=$TestSessionDir\performance_tests.log"
+    )
     
-    Write-Host "Executing: $PerfTestCmd"
+    Write-Host "Executing: $UnrealEditor $($Arguments -join ' ')"
     
     try {
-        Invoke-Expression $PerfTestCmd
+        & $UnrealEditor @Arguments
         Write-Host "✓ Performance tests completed" -ForegroundColor Green
         return $true
     }
@@ -137,12 +158,19 @@ function Run-GauntletTests {
 function Compile-Tests {
     Write-Host "Compiling BikeAdventure with tests..." -ForegroundColor Yellow
     
-    $BuildCmd = "`"$UnrealBuildTool`" -projectfiles -project=`"$ProjectFile`" -game -rocket -progress -buildplatform=Win64"
+    $Arguments = @(
+        "-projectfiles",
+        "-project=$ProjectFile",
+        "-game",
+        "-rocket",
+        "-progress",
+        "-buildplatform=Win64"
+    )
     
-    Write-Host "Executing: $BuildCmd"
+    Write-Host "Executing: $UnrealBuildTool $($Arguments -join ' ')"
     
     try {
-        Invoke-Expression "$BuildCmd > `"$TestSessionDir\compile.log`" 2>&1"
+        & $UnrealBuildTool @Arguments > "$TestSessionDir\compile.log" 2>&1
         Write-Host "✓ Compilation successful" -ForegroundColor Green
         return $true
     }

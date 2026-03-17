@@ -70,11 +70,9 @@ fi
 run_unit_tests() {
     echo -e "${YELLOW}Running Unit Tests...${NC}"
     
-    local unit_test_cmd="\"$UNREAL_EDITOR\" \"$PROJECT_FILE\" -ExecCmds=\"Automation RunTests BikeAdventure.Unit;Quit\" -unattended -nullrhi -nosound -log=$TEST_SESSION_DIR/unit_tests.log"
+    echo "Executing: \"$UNREAL_EDITOR\" \"$PROJECT_FILE\" -ExecCmds=\"Automation RunTests BikeAdventure.Unit;Quit\" -unattended -nullrhi -nosound -log=\"$TEST_SESSION_DIR/unit_tests.log\""
     
-    echo "Executing: $unit_test_cmd"
-    
-    if eval $unit_test_cmd; then
+    if "$UNREAL_EDITOR" "$PROJECT_FILE" -ExecCmds="Automation RunTests BikeAdventure.Unit;Quit" -unattended -nullrhi -nosound -log="$TEST_SESSION_DIR/unit_tests.log"; then
         echo -e "${GREEN}✓ Unit tests completed${NC}"
         return 0
     else
@@ -87,11 +85,9 @@ run_unit_tests() {
 run_integration_tests() {
     echo -e "${YELLOW}Running Integration Tests...${NC}"
     
-    local integration_test_cmd="\"$UNREAL_EDITOR\" \"$PROJECT_FILE\" -ExecCmds=\"Automation RunTests BikeAdventure.Integration;Quit\" -unattended -nullrhi -nosound -log=$TEST_SESSION_DIR/integration_tests.log"
+    echo "Executing: \"$UNREAL_EDITOR\" \"$PROJECT_FILE\" -ExecCmds=\"Automation RunTests BikeAdventure.Integration;Quit\" -unattended -nullrhi -nosound -log=\"$TEST_SESSION_DIR/integration_tests.log\""
     
-    echo "Executing: $integration_test_cmd"
-    
-    if eval $integration_test_cmd; then
+    if "$UNREAL_EDITOR" "$PROJECT_FILE" -ExecCmds="Automation RunTests BikeAdventure.Integration;Quit" -unattended -nullrhi -nosound -log="$TEST_SESSION_DIR/integration_tests.log"; then
         echo -e "${GREEN}✓ Integration tests completed${NC}"
         return 0
     else
@@ -104,11 +100,9 @@ run_integration_tests() {
 run_performance_tests() {
     echo -e "${YELLOW}Running Performance Tests...${NC}"
     
-    local perf_test_cmd="\"$UNREAL_EDITOR\" \"$PROJECT_FILE\" -ExecCmds=\"Automation RunTests BikeAdventure.Performance;Quit\" -unattended -nullrhi -nosound -log=$TEST_SESSION_DIR/performance_tests.log"
+    echo "Executing: \"$UNREAL_EDITOR\" \"$PROJECT_FILE\" -ExecCmds=\"Automation RunTests BikeAdventure.Performance;Quit\" -unattended -nullrhi -nosound -log=\"$TEST_SESSION_DIR/performance_tests.log\""
     
-    echo "Executing: $perf_test_cmd"
-    
-    if eval $perf_test_cmd; then
+    if "$UNREAL_EDITOR" "$PROJECT_FILE" -ExecCmds="Automation RunTests BikeAdventure.Performance;Quit" -unattended -nullrhi -nosound -log="$TEST_SESSION_DIR/performance_tests.log"; then
         echo -e "${GREEN}✓ Performance tests completed${NC}"
         return 0
     else
@@ -142,11 +136,9 @@ run_gauntlet_tests() {
 compile_tests() {
     echo -e "${YELLOW}Compiling BikeAdventure with tests...${NC}"
     
-    local build_cmd="\"$UNREAL_BUILD_TOOL\" -projectfiles -project=\"$PROJECT_FILE\" -game -rocket -progress $PLATFORM_ARGS"
+    echo "Executing: \"$UNREAL_BUILD_TOOL\" -projectfiles -project=\"$PROJECT_FILE\" -game -rocket -progress $PLATFORM_ARGS"
     
-    echo "Executing: $build_cmd"
-    
-    if eval $build_cmd > "$TEST_SESSION_DIR/compile.log" 2>&1; then
+    if "$UNREAL_BUILD_TOOL" -projectfiles -project="$PROJECT_FILE" -game -rocket -progress $PLATFORM_ARGS > "$TEST_SESSION_DIR/compile.log" 2>&1; then
         echo -e "${GREEN}✓ Compilation successful${NC}"
         return 0
     else
