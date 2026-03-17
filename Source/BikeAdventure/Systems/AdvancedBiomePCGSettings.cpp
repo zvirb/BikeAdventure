@@ -831,34 +831,114 @@ void UBiomePresetManager::LoadBiomePresets()
     TArray<FAssetData> PresetAssets;
     AssetRegistryModule.Get().GetAssetsByClass(UBiomeGenerationPreset::StaticClass()->GetFName(), PresetAssets);
     
+    // Clear existing data
+    BiomePresets.Empty();
+    DefaultPresets.Empty();
+    LoadedBiomePresets.Empty();
+    LoadedDefaultPresets.Empty();
+
     for (const FAssetData& AssetData : PresetAssets)
     {
-        UBiomeGenerationPreset* Preset = Cast<UBiomeGenerationPreset>(AssetData.GetAsset());
-        if (Preset)
+        // Use Asset Registry tags to find the biome type without loading the asset
+        FString BiomeTypeString;
+        if (AssetData.GetTagValue(GET_MEMBER_NAME_CHECKED(UBiomeGenerationPreset, TargetBiome), BiomeTypeString))
         {
-            BiomePresets.FindOrAdd(Preset->TargetBiome).Add(Preset);
+            EBiomeType TargetType = EBiomeType::None;
             
-            // Set first preset as default for each biome
-            if (!DefaultPresets.Contains(Preset->TargetBiome))
+            // Convert string to enum
+            UEnum* BiomeEnum = StaticEnum<EBiomeType>();
+            if (BiomeEnum)
             {
-                DefaultPresets.Add(Preset->TargetBiome, Preset);
+                int64 EnumValue = BiomeEnum->GetValueByNameString(BiomeTypeString);
+                if (EnumValue != INDEX_NONE)
+                {
+                    TargetType = (EBiomeType)EnumValue;
+                }
+            }
+
+            if (TargetType != EBiomeType::None)
+            {
+                TSoftObjectPtr<UBiomeGenerationPreset> PresetPtr(AssetData.ToSoftObjectPath());
+                BiomePresets.FindOrAdd(TargetType).Add(PresetPtr);
+
+                // Set first preset as default for each biome
+                if (!DefaultPresets.Contains(TargetType))
+                {
+                    DefaultPresets.Add(TargetType, PresetPtr);
+                }
+            }
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Biome preset %s is missing TargetBiome metadata. Please re-save the asset to optimize loading."), *AssetData.AssetName.ToString());
+
+            // Fallback for missing metadata (one-time hitch)
+            if (UBiomeGenerationPreset* Preset = Cast<UBiomeGenerationPreset>(AssetData.GetAsset()))
+            {
+                TSoftObjectPtr<UBiomeGenerationPreset> PresetPtr(Preset);
+                BiomePresets.FindOrAdd(Preset->TargetBiome).Add(PresetPtr);
+                if (!DefaultPresets.Contains(Preset->TargetBiome))
+                {
+                    DefaultPresets.Add(Preset->TargetBiome, PresetPtr);
+                }
             }
         }
     }
     
-    UE_LOG(LogTemp, Log, TEXT("Loaded %d biome presets"), PresetAssets.Num());
+    UE_LOG(LogTemp, Log, TEXT("Discovered %d biome presets via Asset Registry"), PresetAssets.Num());
 }
 
 UBiomeGenerationPreset* UBiomePresetManager::GetPresetForBiome(EBiomeType BiomeType)
 {
-    UBiomeGenerationPreset** DefaultPreset = DefaultPresets.Find(BiomeType);
-    return DefaultPreset ? *DefaultPreset : nullptr;
+    // Check cache first
+    if (UBiomeGenerationPreset** CachedDefault = LoadedDefaultPresets.Find(BiomeType))
+    {
+        return *CachedDefault;
+    }
+
+    TSoftObjectPtr<UBiomeGenerationPreset>* DefaultPreset = DefaultPresets.Find(BiomeType);
+    if (DefaultPreset)
+    {
+        UBiomeGenerationPreset* LoadedPreset = DefaultPreset->LoadSynchronous();
+        if (LoadedPreset)
+        {
+            LoadedDefaultPresets.Add(BiomeType, LoadedPreset);
+            return LoadedPreset;
+        }
+    }
+
+    return nullptr;
 }
 
 TArray<UBiomeGenerationPreset*> UBiomePresetManager::GetPresetsForBiome(EBiomeType BiomeType)
 {
-    TArray<UBiomeGenerationPreset*>* Presets = BiomePresets.Find(BiomeType);
-    return Presets ? *Presets : TArray<UBiomeGenerationPreset*>();
+    // Check cache first
+    if (TArray<UBiomeGenerationPreset*>* CachedPresets = LoadedBiomePresets.Find(BiomeType))
+    {
+        return *CachedPresets;
+    }
+
+    TArray<UBiomeGenerationPreset*> Results;
+    TArray<TSoftObjectPtr<UBiomeGenerationPreset>>* Presets = BiomePresets.Find(BiomeType);
+
+    if (Presets)
+    {
+        for (TSoftObjectPtr<UBiomeGenerationPreset>& PresetPtr : *Presets)
+        {
+            if (UBiomeGenerationPreset* LoadedPreset = PresetPtr.LoadSynchronous())
+            {
+                Results.Add(LoadedPreset);
+            }
+        }
+
+        // Cache the results
+        if (Results.Num() > 0)
+        {
+            LoadedBiomePresets.Add(BiomeType, Results);
+        }
+    }
+
+    return Results;
 }
 
 UBiomePCGSettings* UBiomePresetManager::CreatePCGSettingsFromPreset(UBiomeGenerationPreset* Preset)
