@@ -239,7 +239,7 @@ AIntersection* UBiomeGenerator::GenerateIntersection(const FVector& Location, EB
         EIntersectionType Type = EIntersectionType::YFork;
         if (Rules.PreferredIntersectionTypes.Num() > 0)
         {
-                int32 Index = FMath::RandRange(0, Rules.PreferredIntersectionTypes.Num() - 1);
+                int32 Index = RandomStream.RandRange(0, Rules.PreferredIntersectionTypes.Num() - 1);
                 Type = Rules.PreferredIntersectionTypes[Index];
         }
 

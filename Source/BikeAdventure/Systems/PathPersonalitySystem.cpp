@@ -3,7 +3,7 @@
 
 UPathPersonalitySystem::UPathPersonalitySystem()
 {
-    RandomStream.Initialize(FMath::Rand());
+    RandomStream.Initialize(12345);
 }
 
 void UPathPersonalitySystem::Initialize()

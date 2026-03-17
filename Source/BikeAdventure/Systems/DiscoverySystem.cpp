@@ -70,7 +70,8 @@ void UDiscoverySystem::LoadDefaultDiscoveries()
 void UDiscoverySystem::HandleBiomeEntered(EBiomeType BiomeType)
 {
 	// Randomly trigger a discovery for the entered biome
-	FRandomStream Random(FMath::Rand());
+	int32 BiomeSeed = SystemSeed + static_cast<int32>(BiomeType);
+	FRandomStream Random(BiomeSeed);
 	if (Random.FRand() < 0.3f) // 30% chance to find something
 	{
 		for (FDiscoveryData& Data : AvailableDiscoveries)

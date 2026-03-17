@@ -31,6 +31,9 @@ class BIKEADVENTURE_API UDiscoverySystem : public UActorComponent
 public:	
 	UDiscoverySystem();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Discovery")
+	int32 SystemSeed = 12345;
+
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Discovery System")
