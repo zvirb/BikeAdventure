@@ -188,7 +188,8 @@ bool FAdvancedBiomeGenerationElement::ExecuteInternal(FPCGContext* Context) cons
             // Fall back to base implementation for other biomes
             {
                 const FBiomeGenerationParams& Params = Settings->GenerationParams;
-                FRandomStream LocalRandom(FMath::Rand());
+                int32 Seed = Context->SourceComponent.IsValid() ? Context->SourceComponent->Seed : 12345;
+                FRandomStream LocalRandom(Seed);
                 int32 NumPoints = FMath::RoundToInt(800.0f * Params.VegetationDensity);
                 
                 for (int32 i = 0; i < NumPoints; i++)
@@ -217,7 +218,8 @@ bool FAdvancedBiomeGenerationElement::ExecuteInternal(FPCGContext* Context) cons
 
 void FAdvancedBiomeGenerationElement::GenerateBeachLayout(FPCGContext* Context, const UBeachPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const
 {
-    FRandomStream Random(FMath::Rand());
+    int32 Seed = Context->SourceComponent.IsValid() ? Context->SourceComponent->Seed : 12345;
+    FRandomStream Random(Seed);
 
     // Generate palm trees
     int32 NumTrees = FMath::RoundToInt(400.0f * Settings->PalmTreeDensity);
@@ -274,7 +276,8 @@ void FAdvancedBiomeGenerationElement::GenerateBeachLayout(FPCGContext* Context, 
 
 void FAdvancedBiomeGenerationElement::GenerateForestLayout(FPCGContext* Context, const UForestPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const
 {
-    FRandomStream Random(FMath::Rand());
+    int32 Seed = Context->SourceComponent.IsValid() ? Context->SourceComponent->Seed : 12345;
+    FRandomStream Random(Seed);
 
     // Generate trees
     int32 NumTrees = FMath::RoundToInt(800.0f * Settings->TreeDensity);
@@ -329,7 +332,8 @@ void FAdvancedBiomeGenerationElement::GenerateForestLayout(FPCGContext* Context,
 
 void FAdvancedBiomeGenerationElement::GenerateUrbanLayout(FPCGContext* Context, const UUrbanPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const
 {
-    FRandomStream Random(FMath::Rand());
+    int32 Seed = Context->SourceComponent.IsValid() ? Context->SourceComponent->Seed : 12345;
+    FRandomStream Random(Seed);
     const FBiomeGenerationParams& Params = Settings->GenerationParams;
     
     // Generate buildings
@@ -431,7 +435,8 @@ void FAdvancedBiomeGenerationElement::GenerateUrbanLayout(FPCGContext* Context, 
 
 void FAdvancedBiomeGenerationElement::GenerateCountrysideLayout(FPCGContext* Context, const UCountrysidePCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const
 {
-    FRandomStream Random(FMath::Rand());
+    int32 Seed = Context->SourceComponent.IsValid() ? Context->SourceComponent->Seed : 12345;
+    FRandomStream Random(Seed);
     
     // Generate farms
     int32 NumFarms = FMath::RoundToInt(10.0f * Settings->FarmDensity);
@@ -549,7 +554,8 @@ void FAdvancedBiomeGenerationElement::GenerateCountrysideLayout(FPCGContext* Con
 
 void FAdvancedBiomeGenerationElement::GenerateMountainTerrain(FPCGContext* Context, const UMountainPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const
 {
-    FRandomStream Random(FMath::Rand());
+    int32 Seed = Context->SourceComponent.IsValid() ? Context->SourceComponent->Seed : 12345;
+    FRandomStream Random(Seed);
     
     // Generate rock formations
     int32 NumRockFormations = FMath::RoundToInt(400.0f * Settings->RockFormationDensity);
@@ -639,7 +645,8 @@ void FAdvancedBiomeGenerationElement::GenerateMountainTerrain(FPCGContext* Conte
 
 void FAdvancedBiomeGenerationElement::GenerateWetlandsEcosystem(FPCGContext* Context, const UWetlandsPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const
 {
-    FRandomStream Random(FMath::Rand());
+    int32 Seed = Context->SourceComponent.IsValid() ? Context->SourceComponent->Seed : 12345;
+    FRandomStream Random(Seed);
     
     // Generate water bodies
     int32 NumWaterBodies = FMath::RoundToInt(20.0f * Settings->WaterBodyDensity);
@@ -726,7 +733,8 @@ void FAdvancedBiomeGenerationElement::GenerateWetlandsEcosystem(FPCGContext* Con
 
 void FAdvancedBiomeGenerationElement::GenerateDesertLayout(FPCGContext* Context, const UDesertPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const
 {
-    FRandomStream Random(FMath::Rand());
+    int32 Seed = Context->SourceComponent.IsValid() ? Context->SourceComponent->Seed : 12345;
+    FRandomStream Random(Seed);
 
     // Generate cacti
     int32 NumCacti = FMath::RoundToInt(200.0f * Settings->CactusDensity);
