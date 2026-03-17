@@ -208,6 +208,42 @@ bool FWorldStreamingPerformanceTest::RunTest(const FString& Parameters)
     return bTestPassed;
 }
 
+// Helper to validate path hints to reduce nesting in tests
+static void ValidatePathHints(FAutomationTestBase* Test, const FPathHints& Hints, bool& bOutPassed)
+{
+    // Validate hint values are within expected ranges
+    if (Hints.LeftPathChallengeFactor < 0.0f || Hints.LeftPathChallengeFactor > 1.0f)
+    {
+        Test->AddError(FString::Printf(TEXT("Left path challenge factor out of range: %.2f"), Hints.LeftPathChallengeFactor));
+        bOutPassed = false;
+    }
+
+    if (Hints.RightPathSceneryFactor < 0.0f || Hints.RightPathSceneryFactor > 1.0f)
+    {
+        Test->AddError(FString::Printf(TEXT("Right path scenery factor out of range: %.2f"), Hints.RightPathSceneryFactor));
+        bOutPassed = false;
+    }
+
+    if (Hints.HintSubtlety < 0.0f || Hints.HintSubtlety > 1.0f)
+    {
+        Test->AddError(FString::Printf(TEXT("Hint subtlety out of range: %.2f"), Hints.HintSubtlety));
+        bOutPassed = false;
+    }
+
+    // Validate personalities are valid
+    if (Hints.LeftPathPersonality == EPathPersonality::None)
+    {
+        Test->AddError(TEXT("Left path personality not assigned"));
+        bOutPassed = false;
+    }
+
+    if (Hints.RightPathPersonality == EPathPersonality::None)
+    {
+        Test->AddError(TEXT("Right path personality not assigned"));
+        bOutPassed = false;
+    }
+}
+
 // Path Personality Test Implementation
 bool FPathPersonalityTest::RunTest(const FString& Parameters)
 {
@@ -236,37 +272,7 @@ bool FPathPersonalityTest::RunTest(const FString& Parameters)
                 FPathHints Hints = PathSystem->GeneratePathHintsForIntersection(
                     CurrentBiome, LeftBiome, RightBiome, TestHistory);
 
-                // Validate hint values are within expected ranges
-                if (Hints.LeftPathChallengeFactor < 0.0f || Hints.LeftPathChallengeFactor > 1.0f)
-                {
-                    AddError(FString::Printf(TEXT("Left path challenge factor out of range: %.2f"), Hints.LeftPathChallengeFactor));
-                    bTestPassed = false;
-                }
-
-                if (Hints.RightPathSceneryFactor < 0.0f || Hints.RightPathSceneryFactor > 1.0f)
-                {
-                    AddError(FString::Printf(TEXT("Right path scenery factor out of range: %.2f"), Hints.RightPathSceneryFactor));
-                    bTestPassed = false;
-                }
-
-                if (Hints.HintSubtlety < 0.0f || Hints.HintSubtlety > 1.0f)
-                {
-                    AddError(FString::Printf(TEXT("Hint subtlety out of range: %.2f"), Hints.HintSubtlety));
-                    bTestPassed = false;
-                }
-
-                // Validate personalities are valid
-                if (Hints.LeftPathPersonality == EPathPersonality::None)
-                {
-                    AddError(TEXT("Left path personality not assigned"));
-                    bTestPassed = false;
-                }
-
-                if (Hints.RightPathPersonality == EPathPersonality::None)
-                {
-                    AddError(TEXT("Right path personality not assigned"));
-                    bTestPassed = false;
-                }
+                ValidatePathHints(this, Hints, bTestPassed);
             }
         }
     }
@@ -338,6 +344,40 @@ bool FMemoryBudgetTest::RunTest(const FString& Parameters)
     return bTestPassed;
 }
 
+// Helper to validate generated intersection to reduce nesting in tests
+static void ValidateGeneratedIntersection(FAutomationTestBase* Test, AIntersection* Intersection,
+    EBiomeType CurrentBiome, EBiomeType LeftBiome, EBiomeType RightBiome, bool& bOutPassed)
+{
+    if (!Intersection)
+    {
+        Test->AddError(FString::Printf(TEXT("Failed to generate intersection for %s biome"),
+            *UBiomeUtilities::GetBiomeName(CurrentBiome)));
+        bOutPassed = false;
+        return;
+    }
+
+    // Validate intersection properties
+    if (!FWorldGenerationTestUtils::ValidateIntersectionPlacement(Intersection, CurrentBiome))
+    {
+        Test->AddError(FString::Printf(TEXT("Invalid intersection placement for %s biome"),
+            *UBiomeUtilities::GetBiomeName(CurrentBiome)));
+        bOutPassed = false;
+    }
+
+    // Validate path biomes are set correctly
+    if (Intersection->GetLeftPathBiome() != LeftBiome)
+    {
+        Test->AddError(TEXT("Left path biome not set correctly"));
+        bOutPassed = false;
+    }
+
+    if (Intersection->GetRightPathBiome() != RightBiome)
+    {
+        Test->AddError(TEXT("Right path biome not set correctly"));
+        bOutPassed = false;
+    }
+}
+
 // Intersection Generation Test Implementation
 bool FIntersectionGenerationTest::RunTest(const FString& Parameters)
 {
@@ -368,34 +408,7 @@ bool FIntersectionGenerationTest::RunTest(const FString& Parameters)
                 AIntersection* Intersection = BiomeGenerator->GenerateIntersection(
                     TestLocation, CurrentBiome, LeftBiome, RightBiome);
 
-                if (!Intersection)
-                {
-                    AddError(FString::Printf(TEXT("Failed to generate intersection for %s biome"), 
-                        *UBiomeUtilities::GetBiomeName(CurrentBiome)));
-                    bTestPassed = false;
-                    continue;
-                }
-
-                // Validate intersection properties
-                if (!FWorldGenerationTestUtils::ValidateIntersectionPlacement(Intersection, CurrentBiome))
-                {
-                    AddError(FString::Printf(TEXT("Invalid intersection placement for %s biome"), 
-                        *UBiomeUtilities::GetBiomeName(CurrentBiome)));
-                    bTestPassed = false;
-                }
-
-                // Validate path biomes are set correctly
-                if (Intersection->GetLeftPathBiome() != LeftBiome)
-                {
-                    AddError(TEXT("Left path biome not set correctly"));
-                    bTestPassed = false;
-                }
-
-                if (Intersection->GetRightPathBiome() != RightBiome)
-                {
-                    AddError(TEXT("Right path biome not set correctly"));
-                    bTestPassed = false;
-                }
+                ValidateGeneratedIntersection(this, Intersection, CurrentBiome, LeftBiome, RightBiome, bTestPassed);
 
                 // Cleanup
                 if (IsValid(Intersection))
