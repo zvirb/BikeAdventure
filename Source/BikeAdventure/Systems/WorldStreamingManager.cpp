@@ -186,14 +186,19 @@ void UWorldStreamingManager::UpdateStreamingForPlayer(const FVector& PlayerLocat
         }
     }
     
-    // Update visibility for all sections
+    // Update visibility and check for distant sections in a single pass
+    TArray<FIntVector> SectionsToUnload;
+    float CurrentTime = GetWorld()->GetTimeSeconds();
+    float VisibilityThresholdSquared = FMath::Square(SectionSizeCm * 1.5f);
+    float UnloadDistanceThresholdSquared = FMath::Square(MaxStreamingDistanceCm);
+
     for (auto& SectionPair : ActiveSections)
     {
         FWorldSection& Section = SectionPair.Value;
         float DistanceToPlayerSquared = FVector::DistSquared(Section.WorldPosition, PlayerLocation);
         
         // Update visibility based on distance
-        bool bShouldBeVisible = DistanceToPlayerSquared <= ((SectionSizeCm * 1.5f) * (SectionSizeCm * 1.5f));
+        bool bShouldBeVisible = DistanceToPlayerSquared <= VisibilityThresholdSquared;
         
         if (Section.bIsVisible != bShouldBeVisible)
         {
@@ -204,10 +209,24 @@ void UWorldStreamingManager::UpdateStreamingForPlayer(const FVector& PlayerLocat
                 Section.StreamingLevel->SetShouldBeVisible(bShouldBeVisible);
             }
         }
+
+        // Check for non-forced cleanup (equivalent to CleanupDistantSections(PlayerLocation, false))
+        float TimeSinceAccess = CurrentTime - Section.LastAccessTime;
+        if (DistanceToPlayerSquared > UnloadDistanceThresholdSquared || TimeSinceAccess > UnloadTimeThreshold)
+        {
+            SectionsToUnload.Add(SectionPair.Key);
+        }
     }
-    
-    // Cleanup distant sections (non-forced)
-    CleanupDistantSections(PlayerLocation, false);
+
+    // Unload distant sections
+    if (SectionsToUnload.Num() > 0)
+    {
+        for (const FIntVector& SectionCoords : SectionsToUnload)
+        {
+            UnloadSection(SectionCoords);
+        }
+        UE_LOG(LogTemp, Log, TEXT("Cleaned up %d distant sections during streaming update"), SectionsToUnload.Num());
+    }
     
     // Update metrics
     UpdatePerformanceMetrics();
