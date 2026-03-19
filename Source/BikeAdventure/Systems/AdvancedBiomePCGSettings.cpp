@@ -23,10 +23,12 @@ UForestPCGSettings::UForestPCGSettings()
     BiomeType = EBiomeType::Forest;
     TreeDensity = 0.4f; // Lowered to meet 60 FPS constraint
     RockDensity = 0.3f;
+    LogDensity = 0.2f;
 
     // Add programmatic assets to arrays
     TreeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_PineTree.SM_PineTree"))));
     RockMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_ForestRock.SM_ForestRock"))));
+    LogMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_ForestLog.SM_ForestLog"))));
 }
 
 // Urban PCG Settings

@@ -53,6 +53,10 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
     float RockDensity;
 
+    // Log density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float LogDensity;
+
     // Tree meshes
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> TreeMeshes;
@@ -60,6 +64,10 @@ public:
     // Rock meshes
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> RockMeshes;
+
+    // Log meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> LogMeshes;
 };
 
 /**

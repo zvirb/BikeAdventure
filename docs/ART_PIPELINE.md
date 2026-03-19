@@ -37,8 +37,8 @@ As part of the goal to dynamically generate content, there are Python scripts in
 
 The scripts will:
 - Create `/Game/Art/Models/Forest/`, `/Game/Art/Models/Mountains/`, `/Game/Art/Models/Urban/`, `/Game/Art/Models/Countryside/`, `/Game/Art/Models/Desert/`, `/Game/Art/Models/Beach/`, `/Game/Art/Models/Wetlands/`, `/Game/Art/Models/Character/`, and `/Game/Art/Materials/`.
-- Procedurally generate `SM_PineTree` and `SM_ForestRock` for Forest, `SM_MountainRock`, `SM_MountainCliff`, and `SM_AlpinePlant` for Mountains, `SM_UrbanBuilding`, `SM_UrbanBench`, and `SM_UrbanTrafficLight` for Urban, `SM_PalmTree` and `SM_Sandcastle` for Beach, `SM_FarmHouse`, `SM_CountrysideFence`, `SM_Crop`, and `SM_Animal` for Countryside, `SM_WaterBody`, `SM_MarshPlant`, and `SM_WetlandsBridge` for Wetlands, and `SM_Bike` for the Main Bike Character using simple primitive and geometry boolean/noise functions.
-- Procedurally construct master materials like `M_StylizedMaster` and `M_StylizedUrban`, and derived material instances (e.g., `MI_MountainRock`, `MI_UrbanBuilding`).
+- Procedurally generate `SM_PineTree`, `SM_ForestRock`, and `SM_ForestLog` for Forest, `SM_MountainRock`, `SM_MountainCliff`, and `SM_AlpinePlant` for Mountains, `SM_UrbanBuilding`, `SM_UrbanBench`, and `SM_UrbanTrafficLight` for Urban, `SM_PalmTree` and `SM_Sandcastle` for Beach, `SM_FarmHouse`, `SM_CountrysideFence`, `SM_Crop`, and `SM_Animal` for Countryside, `SM_WaterBody`, `SM_MarshPlant`, and `SM_WetlandsBridge` for Wetlands, and `SM_Bike` for the Main Bike Character using simple primitive and geometry boolean/noise functions.
+- Procedurally construct master materials like `M_StylizedMaster` and `M_StylizedUrban`, and derived material instances (e.g., `MI_MountainRock`, `MI_UrbanBuilding`, `MI_ForestLog`).
 - Assign these material instances to the corresponding static meshes.
 
 These meshes are then automatically linked into the PCG spawning logic for their respective biomes via C++ (e.g., `UMountainPCGSettings` and `UUrbanPCGSettings`).
