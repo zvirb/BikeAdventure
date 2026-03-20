@@ -181,13 +181,13 @@ def main():
 
     # Procedural Material Instances
     plant_mat_path = f"{mat_dir}/MI_AlpinePlant"
-    plant_mat = create_material_instance(plant_mat_path, master_mat, [0.1, 0.4, 0.1, 1.0], 0.8)
+    plant_mat = asset_utils.create_material_instance(plant_mat_path, master_mat, [0.1, 0.4, 0.1, 1.0], 0.8)
 
     rock_mat_path = f"{mat_dir}/MI_MountainRock"
-    rock_mat = create_material_instance(rock_mat_path, master_mat, [0.3, 0.3, 0.3, 1.0], 0.9)
+    rock_mat = asset_utils.create_material_instance(rock_mat_path, master_mat, [0.3, 0.3, 0.3, 1.0], 0.9)
 
     cliff_mat_path = f"{mat_dir}/MI_MountainCliff"
-    cliff_mat = create_material_instance(cliff_mat_path, master_mat, [0.4, 0.35, 0.35, 1.0], 0.9)
+    cliff_mat = asset_utils.create_material_instance(cliff_mat_path, master_mat, [0.4, 0.35, 0.35, 1.0], 0.9)
 
     # Programmatic 3D Modeling
     plant_mesh_path = f"{base_dir}/SM_AlpinePlant"

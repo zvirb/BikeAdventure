@@ -226,13 +226,13 @@ def main():
 
     # Procedural Material Instances
     building_mat_path = f"{mat_dir}/MI_UrbanBuilding"
-    building_mat = create_material_instance(building_mat_path, master_mat, [0.7, 0.7, 0.7, 1.0], 0.7)
+    building_mat = asset_utils.create_material_instance(building_mat_path, master_mat, [0.7, 0.7, 0.7, 1.0], 0.7)
 
     bench_mat_path = f"{mat_dir}/MI_UrbanBench"
-    bench_mat = create_material_instance(bench_mat_path, master_mat, [0.4, 0.25, 0.1, 1.0], 0.6)
+    bench_mat = asset_utils.create_material_instance(bench_mat_path, master_mat, [0.4, 0.25, 0.1, 1.0], 0.6)
 
     traffic_light_mat_path = f"{mat_dir}/MI_UrbanTrafficLight"
-    traffic_light_mat = create_material_instance(traffic_light_mat_path, master_mat, [0.1, 0.1, 0.1, 1.0], 0.3)
+    traffic_light_mat = asset_utils.create_material_instance(traffic_light_mat_path, master_mat, [0.1, 0.1, 0.1, 1.0], 0.3)
 
     # Programmatic 3D Modeling
     building_mesh_path = f"{base_dir}/SM_UrbanBuilding"

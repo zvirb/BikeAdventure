@@ -64,6 +64,37 @@ def generate_desert_cactus(mesh_path, mat_inst):
     except Exception as e:
         print(f"GeometryScript bake failed: {e}")
 
+def generate_desert_dune(mesh_path, mat_inst):
+    if unreal.EditorAssetLibrary.does_asset_exist(mesh_path):
+        print(f"Asset already exists: {mesh_path}")
+        return
+
+    dyn_mesh = asset_utils.create_dynamic_mesh()
+    options = unreal.GeometryScriptPrimitiveOptions()
+    primitive_functions = asset_utils.get_geometry_script_primitive_functions()
+    transform = unreal.Transform()
+
+    try:
+        # Create a basic smooth sphere shape that ressembles a dune when scattered in terrain
+        primitive_functions.append_sphere(
+            target_mesh=dyn_mesh,
+            primitive_options=options,
+            transform=transform,
+            radius=400.0,
+            steps_x=12,
+            steps_y=12,
+            origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+        )
+    except Exception as e:
+        print(f"GeometryScript generation failed: {e}")
+        return
+
+    try:
+        static_mesh = asset_utils.create_static_mesh_from_dynamic_mesh(dyn_mesh, mesh_path)
+        asset_utils.assign_material_to_mesh(static_mesh, mat_inst)
+    except Exception as e:
+        print(f"GeometryScript bake failed: {e}")
+
 def generate_desert_rock(mesh_path, mat_inst):
     if unreal.EditorAssetLibrary.does_asset_exist(mesh_path):
         print(f"Asset already exists: {mesh_path}")
@@ -111,10 +142,13 @@ def main():
 
     # Procedural Material Instances
     cactus_mat_path = f"{mat_dir}/MI_DesertCactus"
-    cactus_mat = create_material_instance(cactus_mat_path, master_mat, [0.3, 0.6, 0.2, 1.0], 0.7)
+    cactus_mat = asset_utils.create_material_instance(cactus_mat_path, master_mat, [0.3, 0.6, 0.2, 1.0], 0.7)
 
     rock_mat_path = f"{mat_dir}/MI_DesertRock"
-    rock_mat = create_material_instance(rock_mat_path, master_mat, [0.8, 0.6, 0.4, 1.0], 0.9)
+    rock_mat = asset_utils.create_material_instance(rock_mat_path, master_mat, [0.8, 0.6, 0.4, 1.0], 0.9)
+
+    dune_mat_path = f"{mat_dir}/MI_DesertDune"
+    dune_mat = asset_utils.create_material_instance(dune_mat_path, master_mat, [0.9, 0.8, 0.5, 1.0], 0.8)
 
     # Programmatic 3D Modeling
     cactus_mesh_path = f"{base_dir}/SM_DesertCactus"
@@ -122,6 +156,9 @@ def main():
 
     rock_mesh_path = f"{base_dir}/SM_DesertRock"
     generate_desert_rock(rock_mesh_path, rock_mat)
+
+    dune_mesh_path = f"{base_dir}/SM_DesertDune"
+    generate_desert_dune(dune_mesh_path, dune_mat)
 
     print("Asset generation for Desert biome complete.")
 

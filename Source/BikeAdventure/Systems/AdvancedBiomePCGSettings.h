@@ -296,6 +296,10 @@ public:
     // Sandstone and rock meshes
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> RockMeshes;
+
+    // Dune meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> DuneMeshes;
 };
 
 /**

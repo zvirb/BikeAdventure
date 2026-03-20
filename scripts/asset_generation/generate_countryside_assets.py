@@ -346,16 +346,16 @@ def main():
 
     # Procedural Material Instances
     house_mat_path = f"{mat_dir}/MI_FarmHouse"
-    house_mat = create_material_instance(house_mat_path, master_mat, [0.8, 0.2, 0.2, 1.0], 0.8) # Red barn-like color
+    house_mat = asset_utils.create_material_instance(house_mat_path, master_mat, [0.8, 0.2, 0.2, 1.0], 0.8) # Red barn-like color
 
     fence_mat_path = f"{mat_dir}/MI_CountrysideFence"
-    fence_mat = create_material_instance(fence_mat_path, master_mat, [0.4, 0.2, 0.1, 1.0], 0.9) # Brown wood color
+    fence_mat = asset_utils.create_material_instance(fence_mat_path, master_mat, [0.4, 0.2, 0.1, 1.0], 0.9) # Brown wood color
 
     crop_mat_path = f"{mat_dir}/MI_CountrysideCrop"
-    crop_mat = create_material_instance(crop_mat_path, master_mat, [0.7, 0.8, 0.2, 1.0], 0.6) # Yellow/Green
+    crop_mat = asset_utils.create_material_instance(crop_mat_path, master_mat, [0.7, 0.8, 0.2, 1.0], 0.6) # Yellow/Green
 
     animal_mat_path = f"{mat_dir}/MI_CountrysideAnimal"
-    animal_mat = create_material_instance(animal_mat_path, master_mat, [0.85, 0.85, 0.85, 1.0], 0.8) # White/Gray
+    animal_mat = asset_utils.create_material_instance(animal_mat_path, master_mat, [0.85, 0.85, 0.85, 1.0], 0.8) # White/Gray
 
     # Programmatic 3D Modeling
     house_mesh_path = f"{base_dir}/SM_FarmHouse"
