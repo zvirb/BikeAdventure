@@ -233,10 +233,10 @@ def main():
 
     # Procedural Material Instances
     water_mat_path = f"{mat_dir}/MI_WaterBody"
-    water_mat = create_material_instance(water_mat_path, master_mat, [0.1, 0.3, 0.7, 1.0], 0.1) # Blue, low roughness
+    water_mat = asset_utils.create_material_instance(water_mat_path, master_mat, [0.1, 0.3, 0.7, 1.0], 0.1) # Blue, low roughness
 
     plant_mat_path = f"{mat_dir}/MI_MarshPlant"
-    plant_mat = create_material_instance(plant_mat_path, master_mat, [0.2, 0.5, 0.2, 1.0], 0.8) # Green, high roughness
+    plant_mat = asset_utils.create_material_instance(plant_mat_path, master_mat, [0.2, 0.5, 0.2, 1.0], 0.8) # Green, high roughness
 
     # Programmatic 3D Modeling
     water_mesh_path = f"{base_dir}/SM_WaterBody"
@@ -246,7 +246,7 @@ def main():
     generate_marsh_plant(plant_mesh_path, plant_mat)
 
     bridge_mat_path = f"{mat_dir}/MI_WetlandsBridge"
-    bridge_mat = create_material_instance(bridge_mat_path, master_mat, [0.3, 0.2, 0.1, 1.0], 0.8) # Brown, rough wood
+    bridge_mat = asset_utils.create_material_instance(bridge_mat_path, master_mat, [0.3, 0.2, 0.1, 1.0], 0.8) # Brown, rough wood
 
     bridge_mesh_path = f"{base_dir}/SM_WetlandsBridge"
     generate_wetlands_bridge(bridge_mesh_path, bridge_mat)

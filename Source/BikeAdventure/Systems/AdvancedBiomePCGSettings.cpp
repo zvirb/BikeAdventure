@@ -92,6 +92,7 @@ UDesertPCGSettings::UDesertPCGSettings()
     // Add programmatic assets to arrays
     CactusMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Desert/SM_DesertCactus.SM_DesertCactus"))));
     RockMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Desert/SM_DesertRock.SM_DesertRock"))));
+    DuneMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Desert/SM_DesertDune.SM_DesertDune"))));
 }
 
 // Wetlands PCG Settings
