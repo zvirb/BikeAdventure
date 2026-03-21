@@ -209,6 +209,10 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mountain Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> AlpinePlantMeshes;
 
+    // Cave entrance meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mountain Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> CaveMeshes;
+
     // Snow and ice effects
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mountain Effects")
     TArray<TSoftObjectPtr<UNiagaraSystem>> SnowEffects;
