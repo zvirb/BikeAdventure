@@ -109,6 +109,10 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> TrafficElementMeshes;
 
+    // Park tree meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> ParkTreeMeshes;
+
     // Urban lighting setups
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Lighting")
     TArray<TSoftObjectPtr<class UPointLightComponent>> LightingPresets;

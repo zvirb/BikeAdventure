@@ -44,6 +44,7 @@ UUrbanPCGSettings::UUrbanPCGSettings()
     BuildingMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBuilding.SM_UrbanBuilding"))));
     StreetFurnitureMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBench.SM_UrbanBench"))));
     TrafficElementMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanTrafficLight.SM_UrbanTrafficLight"))));
+    ParkTreeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanParkTree.SM_UrbanParkTree"))));
 }
 
 // Countryside PCG Settings
