@@ -213,6 +213,99 @@ def generate_urban_traffic_light(mesh_path, mat_inst):
     except Exception as e:
         print(f"GeometryScript bake failed: {e}")
 
+
+def generate_urban_park_tree(mesh_path, mat_inst):
+    if unreal.EditorAssetLibrary.does_asset_exist(mesh_path):
+        print(f"Asset already exists: {mesh_path}")
+        return
+
+    try:
+        dyn_mesh = unreal.GeometryScriptLibrary_CreateNewDynamicMesh.create_new_dynamic_mesh()
+    except AttributeError:
+        try:
+            dyn_mesh = unreal.GeometryScript_AssetUtils.create_new_dynamic_mesh()
+        except AttributeError:
+            dyn_mesh = unreal.DynamicMesh()
+
+    options = unreal.GeometryScriptPrimitiveOptions()
+
+    try:
+        if hasattr(unreal, "GeometryScriptLibrary_MeshPrimitiveFunctions"):
+            # Trunk
+            trunk_transform = unreal.Transform()
+            unreal.GeometryScriptLibrary_MeshPrimitiveFunctions.append_cylinder(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=trunk_transform,
+                radius=15.0,
+                height=150.0,
+                radial_steps=8,
+                height_steps=1,
+                capped=True,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+            )
+            # Leaves
+            leaves_transform = unreal.Transform()
+            leaves_transform.translation = [0.0, 0.0, 120.0]
+            unreal.GeometryScriptLibrary_MeshPrimitiveFunctions.append_sphere(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=leaves_transform,
+                radius=100.0,
+                steps_x=12,
+                steps_y=12,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+            )
+        else:
+            # Trunk
+            trunk_transform = unreal.Transform()
+            unreal.GeometryScript_MeshPrimitiveFunctions.append_cylinder(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=trunk_transform,
+                radius=15.0,
+                height=150.0,
+                radial_steps=8,
+                height_steps=1,
+                capped=True,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+            )
+            # Leaves
+            leaves_transform = unreal.Transform()
+            leaves_transform.translation = [0.0, 0.0, 120.0]
+            unreal.GeometryScript_MeshPrimitiveFunctions.append_sphere(
+                target_mesh=dyn_mesh,
+                primitive_options=options,
+                transform=leaves_transform,
+                radius=100.0,
+                steps_x=12,
+                steps_y=12,
+                origin=unreal.GeometryScriptPrimitiveOriginMode.BASE
+            )
+    except Exception as e:
+        print(f"GeometryScript generation failed: {e}")
+        return
+
+    create_options = unreal.GeometryScriptCreateNewStaticMeshAssetOptions()
+    try:
+        if hasattr(unreal, "GeometryScriptLibrary_CreateNewStaticMeshAssetFromDynamicMesh"):
+            static_mesh = unreal.GeometryScriptLibrary_CreateNewStaticMeshAssetFromDynamicMesh.create_new_static_mesh_asset_from_dynamic_mesh(
+                dynamic_mesh=dyn_mesh,
+                asset_path_and_name=mesh_path,
+                options=create_options
+            )
+        else:
+            static_mesh = unreal.GeometryScript_AssetUtils.create_new_static_mesh_asset_from_dynamic_mesh(
+                dynamic_mesh=dyn_mesh,
+                asset_path_and_name=mesh_path,
+                options=create_options
+            )
+
+        # Apply material
+        assign_material_to_mesh(static_mesh, mat_inst)
+    except Exception as e:
+        print(f"GeometryScript bake failed: {e}")
+
 def main():
     base_dir = '/Game/Art/Models/Urban'
     mat_dir = '/Game/Art/Materials'
@@ -234,6 +327,9 @@ def main():
     traffic_light_mat_path = f"{mat_dir}/MI_UrbanTrafficLight"
     traffic_light_mat = asset_utils.create_material_instance(traffic_light_mat_path, master_mat, [0.1, 0.1, 0.1, 1.0], 0.3)
 
+    park_tree_mat_path = f"{mat_dir}/MI_UrbanParkTree"
+    park_tree_mat = asset_utils.create_material_instance(park_tree_mat_path, master_mat, [0.1, 0.5, 0.1, 1.0], 0.8)
+
     # Programmatic 3D Modeling
     building_mesh_path = f"{base_dir}/SM_UrbanBuilding"
     generate_urban_building(building_mesh_path, building_mat)
@@ -243,6 +339,9 @@ def main():
 
     traffic_light_mesh_path = f"{base_dir}/SM_UrbanTrafficLight"
     generate_urban_traffic_light(traffic_light_mesh_path, traffic_light_mat)
+
+    park_tree_mesh_path = f"{base_dir}/SM_UrbanParkTree"
+    generate_urban_park_tree(park_tree_mesh_path, park_tree_mat)
 
     print("Asset generation for Urban biome complete.")
 
