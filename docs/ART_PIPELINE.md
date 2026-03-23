@@ -29,6 +29,7 @@ As part of the goal to dynamically generate content, there are Python scripts in
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_wetlands_assets.py").read())
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_desert_assets.py").read())
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_beach_assets.py").read())
+   exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_beach_props.py").read())
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_bike_assets.py").read())
    ```
    Or if you prefer right-clicking, you can drag and drop any of the above python scripts (e.g., `generate_urban_assets.py`) into the Content Browser, right click the asset, and select **Run Editor Utility Python Script**.
@@ -37,7 +38,7 @@ As part of the goal to dynamically generate content, there are Python scripts in
 
 The scripts will:
 - Create `/Game/Art/Models/Forest/`, `/Game/Art/Models/Mountains/`, `/Game/Art/Models/Urban/`, `/Game/Art/Models/Countryside/`, `/Game/Art/Models/Desert/`, `/Game/Art/Models/Beach/`, `/Game/Art/Models/Wetlands/`, `/Game/Art/Models/Character/`, and `/Game/Art/Materials/`.
-- Procedurally generate `SM_PineTree`, `SM_ForestRock`, and `SM_ForestLog` for Forest, `SM_MountainRock`, `SM_MountainCliff`, and `SM_AlpinePlant` for Mountains, `SM_UrbanBuilding`, `SM_UrbanBench`, `SM_UrbanTrafficLight`, and `SM_UrbanParkTree` for Urban, `SM_PalmTree` and `SM_Sandcastle` for Beach, `SM_FarmHouse`, `SM_CountrysideFence`, `SM_Crop`, and `SM_Animal` for Countryside, `SM_WaterBody`, `SM_MarshPlant`, and `SM_WetlandsBridge` for Wetlands, `SM_DesertCactus`, `SM_DesertRock`, and `SM_DesertDune` for Desert, and `SM_Bike` for the Main Bike Character using simple primitive and geometry boolean/noise functions.
+- Procedurally generate `SM_PineTree`, `SM_ForestRock`, and `SM_ForestLog` for Forest, `SM_MountainRock`, `SM_MountainCliff`, and `SM_AlpinePlant` for Mountains, `SM_UrbanBuilding`, `SM_UrbanBench`, `SM_UrbanTrafficLight`, and `SM_UrbanParkTree` for Urban, `SM_PalmTree`, `SM_Sandcastle`, `SM_BeachRock`, and `SM_BeachChair` for Beach, `SM_FarmHouse`, `SM_CountrysideFence`, `SM_Crop`, and `SM_Animal` for Countryside, `SM_WaterBody`, `SM_MarshPlant`, and `SM_WetlandsBridge` for Wetlands, `SM_DesertCactus`, `SM_DesertRock`, and `SM_DesertDune` for Desert, and `SM_Bike` for the Main Bike Character using simple primitive and geometry boolean/noise functions.
 - Procedurally construct master materials like `M_StylizedMaster` and `M_StylizedUrban`, and derived material instances (e.g., `MI_MountainRock`, `MI_UrbanBuilding`, `MI_ForestLog`).
 - Assign these material instances to the corresponding static meshes.
 

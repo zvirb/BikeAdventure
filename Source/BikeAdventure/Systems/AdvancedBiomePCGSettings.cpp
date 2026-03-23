@@ -11,10 +11,14 @@ UBeachPCGSettings::UBeachPCGSettings()
     BiomeType = EBiomeType::Beach;
     PalmTreeDensity = 0.3f;
     SandcastleChance = 0.1f;
+    RockDensity = 0.2f;
+    ChairChance = 0.15f;
 
     // Add programmatic assets to arrays
     PalmTreeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Beach/SM_PalmTree.SM_PalmTree"))));
     SandcastleMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Beach/SM_Sandcastle.SM_Sandcastle"))));
+    RockMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Beach/SM_BeachRock.SM_BeachRock"))));
+    ChairMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Beach/SM_BeachChair.SM_BeachChair"))));
 }
 
 // Forest PCG Settings
@@ -280,6 +284,58 @@ void FAdvancedBiomeGenerationElement::GenerateBeachLayout(FPCGContext* Context, 
             ApplyBiomeAttributes(SandcastlePoint, EBiomeType::Beach, TEXT("Sandcastle"));
 
             OutPoints.Add(SandcastlePoint);
+        }
+    }
+
+    // Generate rocks
+    int32 NumRocks = FMath::RoundToInt(150.0f * Settings->RockDensity);
+    for (int32 i = 0; i < NumRocks; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-2000.0f, 2000.0f),
+            0.0f
+        );
+
+        FRotator Rotation(
+            Random.FRandRange(-20.0f, 20.0f),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(-20.0f, 20.0f)
+        );
+
+        FVector Scale(Random.FRandRange(0.5f, 1.8f));
+
+        FPCGPoint RockPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Beach, 2);
+        RockPoint.Density = Settings->RockDensity;
+        ApplyBiomeAttributes(RockPoint, EBiomeType::Beach, TEXT("BeachRock"));
+
+        OutPoints.Add(RockPoint);
+    }
+
+    // Generate beach chairs
+    if (Random.FRand() < Settings->ChairChance)
+    {
+        int32 NumChairs = Random.RandRange(1, 8);
+        for (int32 i = 0; i < NumChairs; i++)
+        {
+            FVector Location(
+                Random.FRandRange(-1500.0f, 1500.0f),
+                Random.FRandRange(-1500.0f, 1500.0f),
+                0.0f
+            );
+
+            FRotator Rotation(
+                0.0f,
+                Random.FRandRange(0.0f, 360.0f),
+                0.0f
+            );
+
+            FVector Scale(Random.FRandRange(0.8f, 1.2f));
+
+            FPCGPoint ChairPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Beach, 3);
+            ApplyBiomeAttributes(ChairPoint, EBiomeType::Beach, TEXT("BeachChair"));
+
+            OutPoints.Add(ChairPoint);
         }
     }
 }

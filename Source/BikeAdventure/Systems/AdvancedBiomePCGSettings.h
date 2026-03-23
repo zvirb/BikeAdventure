@@ -25,6 +25,14 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
     float SandcastleChance;
 
+    // Rock density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float RockDensity;
+
+    // Chair probability
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float ChairChance;
+
     // Palm tree meshes
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> PalmTreeMeshes;
@@ -32,6 +40,14 @@ public:
     // Sandcastle meshes
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> SandcastleMeshes;
+
+    // Rock meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> RockMeshes;
+
+    // Chair meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> ChairMeshes;
 };
 
 /**
