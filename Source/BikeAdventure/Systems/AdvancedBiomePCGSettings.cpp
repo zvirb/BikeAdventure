@@ -28,11 +28,15 @@ UForestPCGSettings::UForestPCGSettings()
     TreeDensity = 0.4f; // Lowered to meet 60 FPS constraint
     RockDensity = 0.3f;
     LogDensity = 0.2f;
+    BushDensity = 0.3f; // Added for Forest Extensions
+    MushroomDensity = 0.2f; // Added for Forest Extensions
 
     // Add programmatic assets to arrays
     TreeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_PineTree.SM_PineTree"))));
     RockMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_ForestRock.SM_ForestRock"))));
     LogMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_ForestLog.SM_ForestLog"))));
+    BushMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_ForestBush.SM_ForestBush"))));
+    MushroomMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_ForestMushroom.SM_ForestMushroom"))));
 }
 
 // Urban PCG Settings
@@ -393,6 +397,56 @@ void FAdvancedBiomeGenerationElement::GenerateForestLayout(FPCGContext* Context,
         ApplyBiomeAttributes(RockPoint, EBiomeType::Forest, TEXT("Rock"));
 
         OutPoints.Add(RockPoint);
+    }
+
+    // Generate bushes
+    int32 NumBushes = FMath::RoundToInt(400.0f * Settings->BushDensity);
+    for (int32 i = 0; i < NumBushes; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-2000.0f, 2000.0f),
+            0.0f
+        );
+
+        FRotator Rotation(
+            Random.FRandRange(-10.0f, 10.0f),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(-10.0f, 10.0f)
+        );
+
+        FVector Scale(Random.FRandRange(0.8f, 1.6f));
+
+        FPCGPoint BushPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Forest, 2);
+        BushPoint.Density = Settings->BushDensity;
+        ApplyBiomeAttributes(BushPoint, EBiomeType::Forest, TEXT("Bush"));
+
+        OutPoints.Add(BushPoint);
+    }
+
+    // Generate mushrooms
+    int32 NumMushrooms = FMath::RoundToInt(300.0f * Settings->MushroomDensity);
+    for (int32 i = 0; i < NumMushrooms; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-2000.0f, 2000.0f),
+            0.0f
+        );
+
+        FRotator Rotation(
+            Random.FRandRange(-5.0f, 5.0f),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(-5.0f, 5.0f)
+        );
+
+        FVector Scale(Random.FRandRange(0.4f, 0.9f));
+
+        FPCGPoint MushroomPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Forest, 3);
+        MushroomPoint.Density = Settings->MushroomDensity;
+        ApplyBiomeAttributes(MushroomPoint, EBiomeType::Forest, TEXT("Mushroom"));
+
+        OutPoints.Add(MushroomPoint);
     }
 }
 
