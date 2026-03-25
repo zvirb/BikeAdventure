@@ -1,0 +1,3 @@
+TestResults/
+Scripts/GauntletTests/*.json
+__pycache__/
