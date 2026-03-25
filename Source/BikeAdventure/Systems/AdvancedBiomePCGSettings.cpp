@@ -30,6 +30,8 @@ UForestPCGSettings::UForestPCGSettings()
     LogDensity = 0.2f;
     BushDensity = 0.3f; // Added for Forest Extensions
     MushroomDensity = 0.2f; // Added for Forest Extensions
+    FlowerDensity = 0.5f; // Added for Forest Extensions
+    FernDensity = 0.4f; // Added for Forest Extensions
 
     // Add programmatic assets to arrays
     TreeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_PineTree.SM_PineTree"))));
@@ -37,6 +39,8 @@ UForestPCGSettings::UForestPCGSettings()
     LogMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_ForestLog.SM_ForestLog"))));
     BushMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_ForestBush.SM_ForestBush"))));
     MushroomMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_ForestMushroom.SM_ForestMushroom"))));
+    FlowerMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_ForestFlower.SM_ForestFlower"))));
+    FernMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Forest/SM_ForestFern.SM_ForestFern"))));
 }
 
 // Urban PCG Settings
@@ -447,6 +451,56 @@ void FAdvancedBiomeGenerationElement::GenerateForestLayout(FPCGContext* Context,
         ApplyBiomeAttributes(MushroomPoint, EBiomeType::Forest, TEXT("Mushroom"));
 
         OutPoints.Add(MushroomPoint);
+    }
+
+    // Generate flowers
+    int32 NumFlowers = FMath::RoundToInt(500.0f * Settings->FlowerDensity);
+    for (int32 i = 0; i < NumFlowers; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-2000.0f, 2000.0f),
+            0.0f
+        );
+
+        FRotator Rotation(
+            Random.FRandRange(-5.0f, 5.0f),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(-5.0f, 5.0f)
+        );
+
+        FVector Scale(Random.FRandRange(0.3f, 0.7f));
+
+        FPCGPoint FlowerPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Forest, 5);
+        FlowerPoint.Density = Settings->FlowerDensity;
+        ApplyBiomeAttributes(FlowerPoint, EBiomeType::Forest, TEXT("Flower"));
+
+        OutPoints.Add(FlowerPoint);
+    }
+
+    // Generate ferns
+    int32 NumFerns = FMath::RoundToInt(400.0f * Settings->FernDensity);
+    for (int32 i = 0; i < NumFerns; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-2000.0f, 2000.0f),
+            0.0f
+        );
+
+        FRotator Rotation(
+            Random.FRandRange(-5.0f, 5.0f),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(-5.0f, 5.0f)
+        );
+
+        FVector Scale(Random.FRandRange(0.5f, 1.2f));
+
+        FPCGPoint FernPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Forest, 6);
+        FernPoint.Density = Settings->FernDensity;
+        ApplyBiomeAttributes(FernPoint, EBiomeType::Forest, TEXT("Fern"));
+
+        OutPoints.Add(FernPoint);
     }
 }
 

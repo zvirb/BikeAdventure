@@ -81,6 +81,14 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
     float MushroomDensity;
 
+    // Flower density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float FlowerDensity;
+
+    // Fern density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float FernDensity;
+
     // Tree meshes
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> TreeMeshes;
@@ -100,6 +108,14 @@ public:
     // Mushroom meshes
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> MushroomMeshes;
+
+    // Flower meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> FlowerMeshes;
+
+    // Fern meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Forest Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> FernMeshes;
 };
 
 /**
