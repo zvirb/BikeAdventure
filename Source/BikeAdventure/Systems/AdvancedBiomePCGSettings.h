@@ -145,6 +145,14 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Generation")
     bool bIncludeTrafficElements;
 
+    // Trash can density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float TrashCanDensity;
+
+    // Bus stop density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float BusStopDensity;
+
     // Building mesh variations
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> BuildingMeshes;
@@ -160,6 +168,14 @@ public:
     // Park tree meshes
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> ParkTreeMeshes;
+
+    // Trash can meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> TrashCanMeshes;
+
+    // Bus stop meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> BusStopMeshes;
 
     // Urban lighting setups
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Lighting")
