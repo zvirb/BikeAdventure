@@ -51,12 +51,16 @@ UUrbanPCGSettings::UUrbanPCGSettings()
     StreetFurnitureDensity = 0.3f;
     GreenSpaceChance = 0.2f;
     bIncludeTrafficElements = true;
+    TrashCanDensity = 0.2f;
+    BusStopDensity = 0.1f;
 
     // Add programmatic assets to arrays
     BuildingMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBuilding.SM_UrbanBuilding"))));
     StreetFurnitureMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBench.SM_UrbanBench"))));
     TrafficElementMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanTrafficLight.SM_UrbanTrafficLight"))));
     ParkTreeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanParkTree.SM_UrbanParkTree"))));
+    TrashCanMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanTrashCan.SM_UrbanTrashCan"))));
+    BusStopMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBusStop.SM_UrbanBusStop"))));
 }
 
 // Countryside PCG Settings
@@ -604,6 +608,46 @@ void FAdvancedBiomeGenerationElement::GenerateUrbanLayout(FPCGContext* Context, 
             
             OutPoints.Add(TrafficPoint);
         }
+    }
+
+    // Generate trash cans
+    int32 NumTrashCans = FMath::RoundToInt(150.0f * Settings->TrashCanDensity);
+    for (int32 i = 0; i < NumTrashCans; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2200.0f, 2200.0f),
+            Random.FRandRange(-1200.0f, 1200.0f),
+            0.0f
+        );
+
+        FRotator Rotation(0.0f, Random.FRandRange(0.0f, 360.0f), 0.0f);
+        FVector Scale(Random.FRandRange(0.8f, 1.2f));
+
+        FPCGPoint TrashCanPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Urban, 4);
+        TrashCanPoint.Density = Settings->TrashCanDensity;
+        ApplyBiomeAttributes(TrashCanPoint, EBiomeType::Urban, TEXT("TrashCan"));
+
+        OutPoints.Add(TrashCanPoint);
+    }
+
+    // Generate bus stops
+    int32 NumBusStops = FMath::RoundToInt(30.0f * Settings->BusStopDensity);
+    for (int32 i = 0; i < NumBusStops; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-1000.0f, 1000.0f),
+            0.0f
+        );
+
+        FRotator Rotation(0.0f, Random.RandRange(0, 3) * 90.0f, 0.0f); // Face street
+        FVector Scale(Random.FRandRange(0.9f, 1.1f));
+
+        FPCGPoint BusStopPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Urban, 5);
+        BusStopPoint.Density = Settings->BusStopDensity;
+        ApplyBiomeAttributes(BusStopPoint, EBiomeType::Urban, TEXT("BusStop"));
+
+        OutPoints.Add(BusStopPoint);
     }
 }
 

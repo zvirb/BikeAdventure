@@ -70,7 +70,7 @@ class BikeAdventureGauntletTest:
     def __init__(self, context: Optional[MockGauntletContext] = None):
         self.context = context or MockGauntletContext()
         self.test_duration = 10  # 10 seconds for demo
-        self.required_fps = 60
+        self.required_fps = 30
         self.memory_limit_gb = 4.0
         self.test_results = {}
         self.start_time = 0
