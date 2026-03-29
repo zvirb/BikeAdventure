@@ -53,6 +53,7 @@ UUrbanPCGSettings::UUrbanPCGSettings()
     bIncludeTrafficElements = true;
     TrashCanDensity = 0.2f;
     BusStopDensity = 0.1f;
+    BicycleRackDensity = 0.15f;
 
     // Add programmatic assets to arrays
     BuildingMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBuilding.SM_UrbanBuilding"))));
@@ -61,6 +62,7 @@ UUrbanPCGSettings::UUrbanPCGSettings()
     ParkTreeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanParkTree.SM_UrbanParkTree"))));
     TrashCanMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanTrashCan.SM_UrbanTrashCan"))));
     BusStopMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBusStop.SM_UrbanBusStop"))));
+    BicycleRackMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBicycleRack.SM_UrbanBicycleRack"))));
 }
 
 // Countryside PCG Settings
@@ -648,6 +650,26 @@ void FAdvancedBiomeGenerationElement::GenerateUrbanLayout(FPCGContext* Context, 
         ApplyBiomeAttributes(BusStopPoint, EBiomeType::Urban, TEXT("BusStop"));
 
         OutPoints.Add(BusStopPoint);
+    }
+
+    // Generate bicycle racks
+    int32 NumBicycleRacks = FMath::RoundToInt(80.0f * Settings->BicycleRackDensity);
+    for (int32 i = 0; i < NumBicycleRacks; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2200.0f, 2200.0f),
+            Random.FRandRange(-1200.0f, 1200.0f),
+            0.0f
+        );
+
+        FRotator Rotation(0.0f, Random.FRandRange(0.0f, 360.0f), 0.0f);
+        FVector Scale(Random.FRandRange(0.9f, 1.2f));
+
+        FPCGPoint BicycleRackPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Urban, 6);
+        BicycleRackPoint.Density = Settings->BicycleRackDensity;
+        ApplyBiomeAttributes(BicycleRackPoint, EBiomeType::Urban, TEXT("BicycleRack"));
+
+        OutPoints.Add(BicycleRackPoint);
     }
 }
 
