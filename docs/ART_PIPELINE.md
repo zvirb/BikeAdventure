@@ -28,6 +28,7 @@ As part of the goal to dynamically generate content, there are Python scripts in
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_urban_props.py").read())
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_countryside_assets.py").read())
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_wetlands_assets.py").read())
+   exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_wetlands_extensions.py").read())
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_desert_assets.py").read())
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_beach_assets.py").read())
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_beach_props.py").read())

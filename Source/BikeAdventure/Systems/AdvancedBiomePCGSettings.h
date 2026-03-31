@@ -340,6 +340,22 @@ public:
     // Water and mist effects
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Wetlands Effects")
     TArray<TSoftObjectPtr<UNiagaraSystem>> WaterEffects;
+
+    // Log density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Wetlands Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float LogDensity;
+
+    // Lilypad density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Wetlands Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float LilypadDensity;
+
+    // Log meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Wetlands Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> LogMeshes;
+
+    // Lilypad meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Wetlands Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> LilypadMeshes;
 };
 
 /**
