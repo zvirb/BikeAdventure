@@ -124,11 +124,15 @@ UWetlandsPCGSettings::UWetlandsPCGSettings()
     BridgeChance = 0.3f;
     WildlifeActivity = 0.7f;
     FogIntensity = 0.5f;
+    LogDensity = 0.4f;
+    LilypadDensity = 0.5f;
 
     // Add programmatic assets to arrays
     WaterSurfaceMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Wetlands/SM_WaterBody.SM_WaterBody"))));
     MarshPlantMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Wetlands/SM_MarshPlant.SM_MarshPlant"))));
     BridgeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Wetlands/SM_WetlandsBridge.SM_WetlandsBridge"))));
+    LogMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Wetlands/SM_WetlandsLog.SM_WetlandsLog"))));
+    LilypadMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Wetlands/SM_WetlandsLilypad.SM_WetlandsLilypad"))));
 }
 
 // Advanced Biome Generation Element Implementation
@@ -968,6 +972,51 @@ void FAdvancedBiomeGenerationElement::GenerateWetlandsEcosystem(FPCGContext* Con
         ApplyBiomeAttributes(WildlifePoint, EBiomeType::Wetlands, TEXT("WildlifeSign"));
         
         OutPoints.Add(WildlifePoint);
+    }
+
+    // Generate logs
+    int32 NumLogs = FMath::RoundToInt(200.0f * Settings->LogDensity);
+    for (int32 i = 0; i < NumLogs; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-5.0f, 15.0f)
+        );
+
+        FRotator Rotation(
+            Random.FRandRange(-10.0f, 10.0f),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(-10.0f, 10.0f)
+        );
+
+        FVector Scale(Random.FRandRange(0.8f, 1.8f));
+
+        FPCGPoint LogPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Wetlands, 4);
+        LogPoint.Density = Settings->LogDensity;
+        ApplyBiomeAttributes(LogPoint, EBiomeType::Wetlands, TEXT("WetlandsLog"));
+
+        OutPoints.Add(LogPoint);
+    }
+
+    // Generate lilypads
+    int32 NumLilypads = FMath::RoundToInt(400.0f * Settings->LilypadDensity);
+    for (int32 i = 0; i < NumLilypads; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-1800.0f, 1800.0f),
+            Random.FRandRange(-1800.0f, 1800.0f),
+            Random.FRandRange(-2.0f, 2.0f) // Just above/on water surface
+        );
+
+        FRotator Rotation(0.0f, Random.FRandRange(0.0f, 360.0f), 0.0f);
+        FVector Scale(Random.FRandRange(0.5f, 1.5f));
+
+        FPCGPoint LilypadPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Wetlands, 5);
+        LilypadPoint.Density = Settings->LilypadDensity;
+        ApplyBiomeAttributes(LilypadPoint, EBiomeType::Wetlands, TEXT("WetlandsLilypad"));
+
+        OutPoints.Add(LilypadPoint);
     }
 }
 
