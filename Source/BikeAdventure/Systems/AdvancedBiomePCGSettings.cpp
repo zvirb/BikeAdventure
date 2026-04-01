@@ -108,11 +108,15 @@ UDesertPCGSettings::UDesertPCGSettings()
     RockDensity = 0.3f;
     DuneVariation = 1.0f;
     OasisChance = 0.05f;
+    ShrubDensity = 0.5f;
 
     // Add programmatic assets to arrays
     CactusMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Desert/SM_DesertCactus.SM_DesertCactus"))));
     RockMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Desert/SM_DesertRock.SM_DesertRock"))));
     DuneMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Desert/SM_DesertDune.SM_DesertDune"))));
+    ShrubMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Desert/SM_DesertShrub.SM_DesertShrub"))));
+    OasisPalmTreeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Desert/SM_OasisPalmTree.SM_OasisPalmTree"))));
+    OasisWaterMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Desert/SM_OasisWater.SM_OasisWater"))));
 }
 
 // Wetlands PCG Settings
@@ -1073,6 +1077,75 @@ void FAdvancedBiomeGenerationElement::GenerateDesertLayout(FPCGContext* Context,
         ApplyBiomeAttributes(RockPoint, EBiomeType::Desert, TEXT("Rock"));
 
         OutPoints.Add(RockPoint);
+    }
+
+    // Generate shrubs
+    int32 NumShrubs = FMath::RoundToInt(300.0f * Settings->ShrubDensity);
+    for (int32 i = 0; i < NumShrubs; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-2000.0f, 2000.0f),
+            0.0f
+        );
+
+        FRotator Rotation(
+            Random.FRandRange(-5.0f, 5.0f),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(-5.0f, 5.0f)
+        );
+
+        FVector Scale(Random.FRandRange(0.6f, 1.2f));
+
+        FPCGPoint ShrubPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Desert, 2);
+        ShrubPoint.Density = Settings->ShrubDensity;
+        ApplyBiomeAttributes(ShrubPoint, EBiomeType::Desert, TEXT("DesertShrub"));
+
+        OutPoints.Add(ShrubPoint);
+    }
+
+    // Generate oasis
+    if (Random.FRand() < Settings->OasisChance)
+    {
+        FVector OasisCenter(
+            Random.FRandRange(-1500.0f, 1500.0f),
+            Random.FRandRange(-1500.0f, 1500.0f),
+            0.0f
+        );
+
+        // Oasis water pool
+        FRotator WaterRotation(0.0f, Random.FRandRange(0.0f, 360.0f), 0.0f);
+        FVector WaterScale(Random.FRandRange(0.8f, 1.5f));
+
+        FPCGPoint WaterPoint = CreateBiomePoint(OasisCenter, WaterRotation, WaterScale, EBiomeType::Desert, 4);
+        ApplyBiomeAttributes(WaterPoint, EBiomeType::Desert, TEXT("OasisWater"));
+
+        OutPoints.Add(WaterPoint);
+
+        // Oasis palm trees
+        int32 NumPalmTrees = Random.RandRange(3, 8);
+        for (int32 i = 0; i < NumPalmTrees; i++)
+        {
+            float Angle = (2.0f * PI * i) / NumPalmTrees;
+            FVector PalmLocation = OasisCenter + FVector(
+                FMath::Cos(Angle) * 450.0f * WaterScale.X + Random.FRandRange(-50.0f, 50.0f),
+                FMath::Sin(Angle) * 450.0f * WaterScale.Y + Random.FRandRange(-50.0f, 50.0f),
+                0.0f
+            );
+
+            FRotator PalmRotation(
+                Random.FRandRange(-10.0f, 10.0f),
+                Random.FRandRange(0.0f, 360.0f),
+                Random.FRandRange(-10.0f, 10.0f)
+            );
+
+            FVector PalmScale(Random.FRandRange(0.8f, 1.2f));
+
+            FPCGPoint PalmPoint = CreateBiomePoint(PalmLocation, PalmRotation, PalmScale, EBiomeType::Desert, 3);
+            ApplyBiomeAttributes(PalmPoint, EBiomeType::Desert, TEXT("OasisPalmTree"));
+
+            OutPoints.Add(PalmPoint);
+        }
     }
 }
 

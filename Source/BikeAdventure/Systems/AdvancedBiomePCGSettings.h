@@ -385,6 +385,10 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
     float OasisChance;
 
+    // Shrub density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float ShrubDensity;
+
     // Cactus and vegetation meshes
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> CactusMeshes;
@@ -396,6 +400,18 @@ public:
     // Dune meshes
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> DuneMeshes;
+
+    // Shrub meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> ShrubMeshes;
+
+    // Oasis palm tree meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> OasisPalmTreeMeshes;
+
+    // Oasis water pool meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Desert Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> OasisWaterMeshes;
 };
 
 /**
