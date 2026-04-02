@@ -289,6 +289,22 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mountain Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> CaveMeshes;
 
+    // Snow mesh density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mountain Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float SnowDensity;
+
+    // Pebble mesh density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mountain Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float PebbleDensity;
+
+    // Snow meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mountain Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> SnowMeshes;
+
+    // Pebble meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mountain Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> PebbleMeshes;
+
     // Snow and ice effects
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Mountain Effects")
     TArray<TSoftObjectPtr<UNiagaraSystem>> SnowEffects;
