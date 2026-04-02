@@ -92,12 +92,16 @@ UMountainPCGSettings::UMountainPCGSettings()
     SnowCoverage = 0.2f;
     CaveEntranceChance = 0.05f;
     ElevationVariation = 1.5f;
+    SnowDensity = 0.4f;
+    PebbleDensity = 0.6f;
 
     // Add programmatic assets to arrays
     RockMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Mountains/SM_MountainRock.SM_MountainRock"))));
     AlpinePlantMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Mountains/SM_AlpinePlant.SM_AlpinePlant"))));
     CliffMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Mountains/SM_MountainCliff.SM_MountainCliff"))));
     CaveMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Mountains/SM_MountainCave.SM_MountainCave"))));
+    SnowMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Mountains/SM_MountainSnow.SM_MountainSnow"))));
+    PebbleMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Mountains/SM_MountainPebbles.SM_MountainPebbles"))));
 }
 
 // Desert PCG Settings
@@ -888,6 +892,56 @@ void FAdvancedBiomeGenerationElement::GenerateMountainTerrain(FPCGContext* Conte
         ApplyBiomeAttributes(CavePoint, EBiomeType::Mountains, TEXT("CaveEntrance"));
         
         OutPoints.Add(CavePoint);
+    }
+
+    // Generate snow meshes
+    int32 NumSnow = FMath::RoundToInt(250.0f * Settings->SnowDensity);
+    for (int32 i = 0; i < NumSnow; i++)
+    {
+        FVector SnowLocation(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(150.0f, 500.0f) // Snow appears higher up
+        );
+
+        FRotator SnowRotation(
+            Random.FRandRange(-10.0f, 10.0f),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(-10.0f, 10.0f)
+        );
+
+        FVector SnowScale(Random.FRandRange(0.8f, 2.5f));
+
+        FPCGPoint SnowPoint = CreateBiomePoint(SnowLocation, SnowRotation, SnowScale, EBiomeType::Mountains, 4);
+        SnowPoint.Density = Settings->SnowDensity;
+        ApplyBiomeAttributes(SnowPoint, EBiomeType::Mountains, TEXT("Snow"));
+
+        OutPoints.Add(SnowPoint);
+    }
+
+    // Generate pebbles
+    int32 NumPebbles = FMath::RoundToInt(500.0f * Settings->PebbleDensity);
+    for (int32 i = 0; i < NumPebbles; i++)
+    {
+        FVector PebbleLocation(
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(-2000.0f, 2000.0f),
+            Random.FRandRange(0.0f, 150.0f) // Pebbles lower down
+        );
+
+        FRotator PebbleRotation(
+            Random.FRandRange(-20.0f, 20.0f),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(-20.0f, 20.0f)
+        );
+
+        FVector PebbleScale(Random.FRandRange(0.2f, 0.6f));
+
+        FPCGPoint PebblePoint = CreateBiomePoint(PebbleLocation, PebbleRotation, PebbleScale, EBiomeType::Mountains, 5);
+        PebblePoint.Density = Settings->PebbleDensity;
+        ApplyBiomeAttributes(PebblePoint, EBiomeType::Mountains, TEXT("Pebbles"));
+
+        OutPoints.Add(PebblePoint);
     }
 }
 
