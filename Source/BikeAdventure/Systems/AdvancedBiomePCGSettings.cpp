@@ -54,9 +54,13 @@ UUrbanPCGSettings::UUrbanPCGSettings()
     TrashCanDensity = 0.2f;
     BusStopDensity = 0.1f;
     BicycleRackDensity = 0.15f;
+    FireHydrantDensity = 0.15f;
+    MailboxDensity = 0.1f;
 
     // Add programmatic assets to arrays
     BuildingMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBuilding.SM_UrbanBuilding"))));
+    FireHydrantMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanFireHydrant.SM_UrbanFireHydrant"))));
+    MailboxMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanMailbox.SM_UrbanMailbox"))));
     StreetFurnitureMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBench.SM_UrbanBench"))));
     TrafficElementMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanTrafficLight.SM_UrbanTrafficLight"))));
     ParkTreeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanParkTree.SM_UrbanParkTree"))));
@@ -682,6 +686,54 @@ void FAdvancedBiomeGenerationElement::GenerateUrbanLayout(FPCGContext* Context, 
         ApplyBiomeAttributes(BicycleRackPoint, EBiomeType::Urban, TEXT("BicycleRack"));
 
         OutPoints.Add(BicycleRackPoint);
+    }
+
+    // Generate fire hydrants
+    int32 NumFireHydrants = FMath::RoundToInt(150.0f * Settings->FireHydrantDensity);
+    for (int32 i = 0; i < NumFireHydrants; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2500.0f, 2500.0f),
+            Random.FRandRange(-2500.0f, 2500.0f),
+            0.0f
+        );
+
+        FRotator Rotation(
+            0.0f,
+            Random.FRandRange(0.0f, 360.0f),
+            0.0f
+        );
+
+        FVector Scale(1.0f);
+
+        FPCGPoint HydrantPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Urban, 7); // Mesh index 7 for FireHydrant
+        HydrantPoint.Density = Settings->FireHydrantDensity;
+        ApplyBiomeAttributes(HydrantPoint, EBiomeType::Urban, TEXT("FireHydrant"));
+        OutPoints.Add(HydrantPoint);
+    }
+
+    // Generate mailboxes
+    int32 NumMailboxes = FMath::RoundToInt(100.0f * Settings->MailboxDensity);
+    for (int32 i = 0; i < NumMailboxes; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2500.0f, 2500.0f),
+            Random.FRandRange(-2500.0f, 2500.0f),
+            0.0f
+        );
+
+        FRotator Rotation(
+            0.0f,
+            Random.FRandRange(0.0f, 360.0f),
+            0.0f
+        );
+
+        FVector Scale(1.0f);
+
+        FPCGPoint MailboxPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Urban, 8); // Mesh index 8 for Mailbox
+        MailboxPoint.Density = Settings->MailboxDensity;
+        ApplyBiomeAttributes(MailboxPoint, EBiomeType::Urban, TEXT("Mailbox"));
+        OutPoints.Add(MailboxPoint);
     }
 }
 
