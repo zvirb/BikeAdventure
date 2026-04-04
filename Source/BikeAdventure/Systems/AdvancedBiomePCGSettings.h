@@ -153,6 +153,14 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
     float BusStopDensity;
 
+    // Fire hydrant density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float FireHydrantDensity;
+
+    // Mailbox density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float MailboxDensity;
+
     // Building mesh variations
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> BuildingMeshes;
@@ -176,6 +184,14 @@ public:
     // Bus stop meshes
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> BusStopMeshes;
+
+    // Fire hydrant meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> FireHydrantMeshes;
+
+    // Mailbox meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> MailboxMeshes;
 
     // Bicycle rack density
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
