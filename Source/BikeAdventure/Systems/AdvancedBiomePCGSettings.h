@@ -201,6 +201,22 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> BicycleRackMeshes;
 
+    // Billboard density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float BillboardDensity;
+
+    // Signpost density
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float SignpostDensity;
+
+    // Billboard meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> BillboardMeshes;
+
+    // Signpost meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> SignpostMeshes;
+
     // Urban lighting setups
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Urban Lighting")
     TArray<TSoftObjectPtr<class UPointLightComponent>> LightingPresets;

@@ -56,6 +56,8 @@ UUrbanPCGSettings::UUrbanPCGSettings()
     BicycleRackDensity = 0.15f;
     FireHydrantDensity = 0.15f;
     MailboxDensity = 0.1f;
+    BillboardDensity = 0.05f;
+    SignpostDensity = 0.2f;
 
     // Add programmatic assets to arrays
     BuildingMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBuilding.SM_UrbanBuilding"))));
@@ -67,6 +69,8 @@ UUrbanPCGSettings::UUrbanPCGSettings()
     TrashCanMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanTrashCan.SM_UrbanTrashCan"))));
     BusStopMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBusStop.SM_UrbanBusStop"))));
     BicycleRackMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBicycleRack.SM_UrbanBicycleRack"))));
+    BillboardMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanBillboard.SM_UrbanBillboard"))));
+    SignpostMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Urban/SM_UrbanSignpost.SM_UrbanSignpost"))));
 }
 
 // Countryside PCG Settings
@@ -734,6 +738,46 @@ void FAdvancedBiomeGenerationElement::GenerateUrbanLayout(FPCGContext* Context, 
         MailboxPoint.Density = Settings->MailboxDensity;
         ApplyBiomeAttributes(MailboxPoint, EBiomeType::Urban, TEXT("Mailbox"));
         OutPoints.Add(MailboxPoint);
+    }
+
+    // Generate billboards
+    int32 NumBillboards = FMath::RoundToInt(50.0f * Settings->BillboardDensity);
+    for (int32 i = 0; i < NumBillboards; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2500.0f, 2500.0f),
+            Random.FRandRange(-2500.0f, 2500.0f),
+            0.0f
+        );
+
+        FRotator Rotation(0.0f, Random.FRandRange(0.0f, 360.0f), 0.0f);
+        FVector Scale(Random.FRandRange(0.8f, 1.2f));
+
+        FPCGPoint BillboardPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Urban, 7);
+        BillboardPoint.Density = Settings->BillboardDensity;
+        ApplyBiomeAttributes(BillboardPoint, EBiomeType::Urban, TEXT("Billboard"));
+
+        OutPoints.Add(BillboardPoint);
+    }
+
+    // Generate signposts
+    int32 NumSignposts = FMath::RoundToInt(150.0f * Settings->SignpostDensity);
+    for (int32 i = 0; i < NumSignposts; i++)
+    {
+        FVector Location(
+            Random.FRandRange(-2500.0f, 2500.0f),
+            Random.FRandRange(-2500.0f, 2500.0f),
+            0.0f
+        );
+
+        FRotator Rotation(0.0f, Random.FRandRange(0.0f, 360.0f), 0.0f);
+        FVector Scale(Random.FRandRange(0.9f, 1.1f));
+
+        FPCGPoint SignpostPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Urban, 8);
+        SignpostPoint.Density = Settings->SignpostDensity;
+        ApplyBiomeAttributes(SignpostPoint, EBiomeType::Urban, TEXT("Signpost"));
+
+        OutPoints.Add(SignpostPoint);
     }
 }
 
