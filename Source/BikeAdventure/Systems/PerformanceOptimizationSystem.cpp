@@ -761,20 +761,19 @@ void UAutoOptimizationComponent::RegisterWithOptimizationSystem()
         return;
     }
     
-    // Register all static mesh components
-    TArray<UStaticMeshComponent*> MeshComponents;
-    Owner->GetComponents<UStaticMeshComponent>(MeshComponents);
-    for (UStaticMeshComponent* MeshComp : MeshComponents)
+    // Register all relevant components in a single pass
+    TArray<UActorComponent*> Components;
+    Owner->GetComponents(Components);
+    for (UActorComponent* Component : Components)
     {
-        OptimizationSystem->RegisterComponentForOptimization(MeshComp);
-    }
-    
-    // Register all particle systems
-    TArray<UNiagaraComponent*> ParticleComponents;
-    Owner->GetComponents<UNiagaraComponent>(ParticleComponents);
-    for (UNiagaraComponent* ParticleComp : ParticleComponents)
-    {
-        OptimizationSystem->RegisterParticleSystemForOptimization(ParticleComp);
+        if (UStaticMeshComponent* MeshComp = Cast<UStaticMeshComponent>(Component))
+        {
+            OptimizationSystem->RegisterComponentForOptimization(MeshComp);
+        }
+        else if (UNiagaraComponent* ParticleComp = Cast<UNiagaraComponent>(Component))
+        {
+            OptimizationSystem->RegisterParticleSystemForOptimization(ParticleComp);
+        }
     }
     
     // Register PCG actor if this is one
