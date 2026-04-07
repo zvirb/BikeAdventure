@@ -331,7 +331,7 @@ jobs:
           find artifacts/ -type f -name "*.tar.gz" -o -name "*.zip" | while read file; do
             echo "✓ Found build package: $file"
             echo "  Size: $(du -h "$file" | cut -f1)"
-            echo "  MD5: $(md5sum "$file" | cut -d' ' -f1)"
+            echo "  SHA-256: $(sha256sum "$file" | cut -d' ' -f1)"
           done
 
       - name: Run Deployment Verification
