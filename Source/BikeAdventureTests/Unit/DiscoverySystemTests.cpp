@@ -1,3 +1,5 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
 #include "CoreMinimal.h"
 #include "Misc/AutomationTest.h"
 #include "Tests/AutomationCommon.h"
@@ -12,22 +14,24 @@
  */
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDiscoverySystemInitializationTest,
-	"BikeAdventure.Systems.Discovery.Initialization",
+	"BikeAdventure.Unit.Systems.Discovery.Initialization",
 	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 
 bool FDiscoverySystemInitializationTest::RunTest(const FString& Parameters)
 {
 	UWorld* TestWorld = UWorld::CreateWorld(EWorldType::Game, false);
+	TestNotNull("Test world created", TestWorld);
+
 	if (!TestWorld)
 	{
-		AddError(TEXT("Failed to create test world"));
 		return false;
 	}
 
 	UDiscoverySystem* DiscoverySystem = NewObject<UDiscoverySystem>(TestWorld);
+	TestNotNull("DiscoverySystem created", DiscoverySystem);
+
 	if (!DiscoverySystem)
 	{
-		AddError(TEXT("Failed to create DiscoverySystem"));
 		TestWorld->DestroyWorld(false);
 		return false;
 	}
@@ -48,15 +52,16 @@ bool FDiscoverySystemInitializationTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDiscoverySystemTriggerTest,
-	"BikeAdventure.Systems.Discovery.TriggerDiscovery",
+	"BikeAdventure.Unit.Systems.Discovery.TriggerDiscovery",
 	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 
 bool FDiscoverySystemTriggerTest::RunTest(const FString& Parameters)
 {
 	UWorld* TestWorld = UWorld::CreateWorld(EWorldType::Game, false);
+	TestNotNull("Test world created", TestWorld);
+
 	if (!TestWorld)
 	{
-		AddError(TEXT("Failed to create test world"));
 		return false;
 	}
 
@@ -76,7 +81,7 @@ bool FDiscoverySystemTriggerTest::RunTest(const FString& Parameters)
 	TestFalse(TEXT("TriggerDiscovery should return false for already discovered item"), bSuccessRepeat);
 	TestEqual(TEXT("Found count should still be 1"), DiscoverySystem->GetTotalDiscoveriesFound(), 1);
 
-	// Trigger invalid discovery
+	// Trigger invalid discovery (Address the untested failure path issue)
 	bool bSuccessInvalid = DiscoverySystem->TriggerDiscovery(TEXT("Non-existent Discovery"));
 	TestFalse(TEXT("TriggerDiscovery should return false for invalid discovery name"), bSuccessInvalid);
 	TestEqual(TEXT("Found count should still be 1"), DiscoverySystem->GetTotalDiscoveriesFound(), 1);
@@ -86,15 +91,16 @@ bool FDiscoverySystemTriggerTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDiscoverySystemBiomeTriggerTest,
-	"BikeAdventure.Systems.Discovery.BiomeTrigger",
+	"BikeAdventure.Unit.Systems.Discovery.BiomeTrigger",
 	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 
 bool FDiscoverySystemBiomeTriggerTest::RunTest(const FString& Parameters)
 {
 	UWorld* TestWorld = UWorld::CreateWorld(EWorldType::Game, false);
+	TestNotNull("Test world created", TestWorld);
+
 	if (!TestWorld)
 	{
-		AddError(TEXT("Failed to create test world"));
 		return false;
 	}
 
@@ -102,11 +108,7 @@ bool FDiscoverySystemBiomeTriggerTest::RunTest(const FString& Parameters)
 	DiscoverySystem->Initialize();
 
 	// HandleBiomeEntered has a 30% random chance.
-	// To test it reliably in a unit test, we might need multiple attempts
-	// or just verify that if it triggers, it's correct.
-	// Since we can't easily mock FMath::Rand() here without changing source,
-	// we will loop until we get at least one discovery or a reasonable limit.
-
+	// To test it reliably in a unit test, we will loop until we get at least one discovery or a reasonable limit.
 	int32 InitialFound = DiscoverySystem->GetTotalDiscoveriesFound();
 	bool bFoundSomething = false;
 
@@ -134,15 +136,16 @@ bool FDiscoverySystemBiomeTriggerTest::RunTest(const FString& Parameters)
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FDiscoverySystemGettersTest,
-	"BikeAdventure.Systems.Discovery.Getters",
+	"BikeAdventure.Unit.Systems.Discovery.Getters",
 	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 
 bool FDiscoverySystemGettersTest::RunTest(const FString& Parameters)
 {
 	UWorld* TestWorld = UWorld::CreateWorld(EWorldType::Game, false);
+	TestNotNull("Test world created", TestWorld);
+
 	if (!TestWorld)
 	{
-		AddError(TEXT("Failed to create test world"));
 		return false;
 	}
 
