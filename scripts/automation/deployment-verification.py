@@ -236,10 +236,10 @@ class DeploymentValidator:
             except Exception as e:
                 validation_result["warnings"].append(f"Could not extract version info: {e}")
                 
-            # Calculate MD5 hash for integrity
+            # Calculate SHA-256 hash for integrity
             try:
-                md5_hash = self.calculate_file_hash(executable_path)
-                validation_result["details"]["md5_hash"] = md5_hash
+                sha256_hash = self.calculate_file_hash(executable_path)
+                validation_result["details"]["sha256_hash"] = sha256_hash
             except Exception as e:
                 validation_result["warnings"].append(f"Could not calculate hash: {e}")
                 
@@ -302,7 +302,7 @@ class DeploymentValidator:
                 
                 # Calculate hash for integrity
                 try:
-                    pak_info["md5_hash"] = self.calculate_file_hash(pak_file)
+                    pak_info["sha256_hash"] = self.calculate_file_hash(pak_file)
                 except Exception as e:
                     pak_info["hash_error"] = str(e)
                     
@@ -655,13 +655,13 @@ class DeploymentValidator:
         return None
         
     def calculate_file_hash(self, file_path: Path) -> str:
-        """Calculate MD5 hash of a file"""
-        hash_md5 = hashlib.md5()
+        """Calculate SHA-256 hash of a file"""
+        hash_sha256 = hashlib.sha256()
         with open(file_path, "rb") as f:
             # Read in chunks to handle large files
             for chunk in iter(lambda: f.read(4096), b""):
-                hash_md5.update(chunk)
-        return hash_md5.hexdigest()
+                hash_sha256.update(chunk)
+        return hash_sha256.hexdigest()
         
     def run_comprehensive_validation(self) -> bool:
         """Run all validation tests"""
