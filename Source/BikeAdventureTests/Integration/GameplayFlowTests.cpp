@@ -84,29 +84,32 @@ bool FGameplayFlowTest::TestGameStartToIntersectionFlow()
 
 	// Simulate game loop until we reach an intersection
 	bool bReachedIntersection = false;
-	int FrameCount = 0;
-	const int MaxFrames = 10000; // Prevent infinite loop
+	float ElapsedTime = 0.0f;
+	const float DeltaTime = 0.016f;
+	const float MaxDuration = 160.0f; // ~10000 frames at 60fps
+	bool bCheckedMovement = false;
 
-	while (!bReachedIntersection && FrameCount < MaxFrames)
+	while (!bReachedIntersection && ElapsedTime < MaxDuration)
 	{
 		// Update movement
-		BikeMovement->UpdateMovement(0.016f);
+		BikeMovement->UpdateMovement(DeltaTime);
 		
 		// Check for intersections
-		IntersectionDetector->TickComponent(0.016f, ELevelTick::LEVELTICK_All, nullptr);
+		IntersectionDetector->TickComponent(DeltaTime, ELevelTick::LEVELTICK_All, nullptr);
 		
 		bReachedIntersection = IntersectionDetector->IsAtIntersection();
-		FrameCount++;
+		ElapsedTime += DeltaTime;
 
 		// Validate that bike is actually moving
-		if (FrameCount == 60) // After 1 second
+		if (!bCheckedMovement && ElapsedTime >= 1.0f)
 		{
 			TestTrue("Bike is moving after 1 second", BikeMovement->GetVelocity().Size() > 0);
+			bCheckedMovement = true;
 		}
 	}
 
 	// Test that we can reach an intersection in reasonable time
-	TestTrue("Reached intersection within reasonable time", FrameCount < MaxFrames);
+	TestTrue("Reached intersection within reasonable time", ElapsedTime < MaxDuration);
 
 	if (bReachedIntersection)
 	{
@@ -154,16 +157,18 @@ bool FGameplayFlowTest::TestContinuousExplorationSession()
 	BikeMovement->SetThrottle(1.0f);
 	
 	int IntersectionsFound = 0;
-	int FrameCount = 0;
-	const int SessionLength = 18000; // 5 minutes at 60fps
+	float ElapsedTime = 0.0f;
+	const float DeltaTime = 0.016f;
+	const float SessionDuration = 300.0f; // 5 minutes (18000 frames at 60fps)
+	float NextValidationTime = 60.0f; // Every minute
 	
 	TArray<FString> ChoiceHistory;
 
-	for (FrameCount = 0; FrameCount < SessionLength; FrameCount++)
+	while (ElapsedTime < SessionDuration)
 	{
 		// Update movement
-		BikeMovement->UpdateMovement(0.016f);
-		IntersectionDetector->TickComponent(0.016f, ELevelTick::LEVELTICK_All, nullptr);
+		BikeMovement->UpdateMovement(DeltaTime);
+		IntersectionDetector->TickComponent(DeltaTime, ELevelTick::LEVELTICK_All, nullptr);
 
 		// Handle intersections
 		if (IntersectionDetector->IsAtIntersection())
@@ -182,18 +187,21 @@ bool FGameplayFlowTest::TestContinuousExplorationSession()
 			}
 		}
 
+		ElapsedTime += DeltaTime;
+
 		// Periodic validation during session
-		if (FrameCount % 3600 == 0) // Every minute
+		if (ElapsedTime >= NextValidationTime)
 		{
 			TestTrue("Bike still moving", BikeMovement->GetVelocity().Size() > 0);
 			TestTrue("Speed within limits", BikeMovement->GetVelocity().Size() <= BikeMovement->GetMaxSpeed() + 1.0f);
+			NextValidationTime += 60.0f;
 		}
 	}
 
 	// Validate exploration session results
 	TestTrue("Found multiple intersections", IntersectionsFound >= 3);
 	TestTrue("Made multiple choices", ChoiceHistory.Num() >= 3);
-	TestTrue("Session completed full duration", FrameCount == SessionLength);
+	TestTrue("Session completed full duration", FMath::IsNearlyEqual(ElapsedTime, SessionDuration, 0.1f));
 
 	// Test that we have variety in choices
 	bool bHasLeftTurns = ChoiceHistory.Contains(TEXT("Turn Left"));
@@ -241,13 +249,14 @@ bool FGameplayFlowTest::TestBiomeTransitionDuringGameplay()
 	BiomeHistory.Add(CurrentBiome);
 	
 	int IntersectionsFound = 0;
-	int FrameCount = 0;
-	const int MaxFrames = 10000;
+	float ElapsedTime = 0.0f;
+	const float DeltaTime = 0.016f;
+	const float MaxDuration = 160.0f; // ~10000 frames at 60fps
 
-	while (IntersectionsFound < 5 && FrameCount < MaxFrames)
+	while (IntersectionsFound < 5 && ElapsedTime < MaxDuration)
 	{
-		BikeMovement->UpdateMovement(0.016f);
-		IntersectionDetector->TickComponent(0.016f, ELevelTick::LEVELTICK_All, nullptr);
+		BikeMovement->UpdateMovement(DeltaTime);
+		IntersectionDetector->TickComponent(DeltaTime, ELevelTick::LEVELTICK_All, nullptr);
 
 		if (IntersectionDetector->IsAtIntersection())
 		{
@@ -268,7 +277,7 @@ bool FGameplayFlowTest::TestBiomeTransitionDuringGameplay()
 			}
 		}
 		
-		FrameCount++;
+		ElapsedTime += DeltaTime;
 	}
 
 	// Validate biome progression
