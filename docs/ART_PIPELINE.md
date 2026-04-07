@@ -40,6 +40,7 @@ As part of the goal to dynamically generate content, there are Python scripts in
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_urban_bicyclerack.py").read())
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_mountain_extensions.py").read())
    exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_urban_decorations.py").read())
+   exec(open("C:/Path/To/Your/Repo/scripts/asset_generation/generate_desert_oasis.py").read())
    ```
    Or if you prefer right-clicking, you can drag and drop any of the above python scripts (e.g., `generate_urban_assets.py`) into the Content Browser, right click the asset, and select **Run Editor Utility Python Script**.
 
