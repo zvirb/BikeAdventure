@@ -33,6 +33,14 @@ public:
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
     float ChairChance;
 
+    // Umbrella probability
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float UmbrellaChance;
+
+    // Surfboard probability
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Generation", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+    float SurfboardChance;
+
     // Palm tree meshes
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> PalmTreeMeshes;
@@ -48,6 +56,14 @@ public:
     // Chair meshes
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Assets")
     TArray<TSoftObjectPtr<UStaticMesh>> ChairMeshes;
+
+    // Umbrella meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> UmbrellaMeshes;
+
+    // Surfboard meshes
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Beach Assets")
+    TArray<TSoftObjectPtr<UStaticMesh>> SurfboardMeshes;
 };
 
 /**
