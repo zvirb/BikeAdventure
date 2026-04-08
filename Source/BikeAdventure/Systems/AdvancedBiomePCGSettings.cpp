@@ -13,12 +13,16 @@ UBeachPCGSettings::UBeachPCGSettings()
     SandcastleChance = 0.1f;
     RockDensity = 0.2f;
     ChairChance = 0.15f;
+    UmbrellaChance = 0.1f;
+    SurfboardChance = 0.08f;
 
     // Add programmatic assets to arrays
     PalmTreeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Beach/SM_PalmTree.SM_PalmTree"))));
     SandcastleMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Beach/SM_Sandcastle.SM_Sandcastle"))));
     RockMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Beach/SM_BeachRock.SM_BeachRock"))));
     ChairMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Beach/SM_BeachChair.SM_BeachChair"))));
+    UmbrellaMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Beach/SM_BeachUmbrella.SM_BeachUmbrella"))));
+    SurfboardMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Game/Art/Models/Beach/SM_Surfboard.SM_Surfboard"))));
 }
 
 // Forest PCG Settings
@@ -370,6 +374,60 @@ void FAdvancedBiomeGenerationElement::GenerateBeachLayout(FPCGContext* Context, 
             ApplyBiomeAttributes(ChairPoint, EBiomeType::Beach, TEXT("BeachChair"));
 
             OutPoints.Add(ChairPoint);
+        }
+    }
+
+    // Generate beach umbrellas
+    if (Random.FRand() < Settings->UmbrellaChance)
+    {
+        int32 NumUmbrellas = Random.RandRange(1, 6);
+        for (int32 i = 0; i < NumUmbrellas; i++)
+        {
+            FVector Location(
+                Random.FRandRange(-1500.0f, 1500.0f),
+                Random.FRandRange(-1500.0f, 1500.0f),
+                0.0f
+            );
+
+            FRotator Rotation(
+                0.0f,
+                Random.FRandRange(0.0f, 360.0f),
+                0.0f
+            );
+
+            FVector Scale(Random.FRandRange(0.9f, 1.5f));
+
+            FPCGPoint UmbrellaPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Beach, 4);
+            ApplyBiomeAttributes(UmbrellaPoint, EBiomeType::Beach, TEXT("BeachUmbrella"));
+
+            OutPoints.Add(UmbrellaPoint);
+        }
+    }
+
+    // Generate surfboards
+    if (Random.FRand() < Settings->SurfboardChance)
+    {
+        int32 NumSurfboards = Random.RandRange(1, 4);
+        for (int32 i = 0; i < NumSurfboards; i++)
+        {
+            FVector Location(
+                Random.FRandRange(-1500.0f, 1500.0f),
+                Random.FRandRange(-1500.0f, 1500.0f),
+                0.0f
+            );
+
+            FRotator Rotation(
+                Random.FRandRange(-5.0f, 5.0f),
+                Random.FRandRange(0.0f, 360.0f),
+                Random.FRandRange(-5.0f, 5.0f)
+            );
+
+            FVector Scale(Random.FRandRange(0.8f, 1.2f));
+
+            FPCGPoint SurfboardPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Beach, 5);
+            ApplyBiomeAttributes(SurfboardPoint, EBiomeType::Beach, TEXT("Surfboard"));
+
+            OutPoints.Add(SurfboardPoint);
         }
     }
 }
