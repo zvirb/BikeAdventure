@@ -27,7 +27,7 @@ void APathNPCSpawner::SpawnNPCsAlongPath()
         return;
     }
 
-    SpawnedNPCs.Empty();
+    SpawnedNPCs.Empty(NPCCount);
 
     FRandomStream Random(RandomSeed);
     float SplineLength = PathSpline->GetSplineLength();
