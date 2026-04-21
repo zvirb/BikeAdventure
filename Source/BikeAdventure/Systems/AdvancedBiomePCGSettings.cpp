@@ -436,156 +436,25 @@ void FAdvancedBiomeGenerationElement::GenerateForestLayout(FPCGContext* Context,
 {
     int32 Seed = Context->SourceComponent.IsValid() ? Context->SourceComponent->Seed : 12345;
     FRandomStream Random(Seed);
+    FVector2D ForestRange(-2000.0f, 2000.0f);
 
     // Generate trees
-    int32 NumTrees = FMath::RoundToInt(800.0f * Settings->TreeDensity);
-    for (int32 i = 0; i < NumTrees; i++)
-    {
-        FVector Location(
-            Random.FRandRange(-2000.0f, 2000.0f),
-            Random.FRandRange(-2000.0f, 2000.0f),
-            0.0f
-        );
-
-        FRotator Rotation(
-            Random.FRandRange(-5.0f, 5.0f),
-            Random.FRandRange(0.0f, 360.0f),
-            Random.FRandRange(-5.0f, 5.0f)
-        );
-
-        FVector Scale(Random.FRandRange(0.8f, 1.5f));
-
-        FPCGPoint TreePoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Forest, 0);
-        TreePoint.Density = Settings->TreeDensity;
-        ApplyBiomeAttributes(TreePoint, EBiomeType::Forest, TEXT("Tree"));
-
-        OutPoints.Add(TreePoint);
-    }
+    ScatterObjects(Random, OutPoints, EBiomeType::Forest, TEXT("Tree"), 0, 800.0f, Settings->TreeDensity, ForestRange, ForestRange, -5.0f, 5.0f, 0.8f, 1.5f);
 
     // Generate rocks
-    int32 NumRocks = FMath::RoundToInt(200.0f * Settings->RockDensity);
-    for (int32 i = 0; i < NumRocks; i++)
-    {
-        FVector Location(
-            Random.FRandRange(-2000.0f, 2000.0f),
-            Random.FRandRange(-2000.0f, 2000.0f),
-            0.0f
-        );
-
-        FRotator Rotation(
-            Random.FRandRange(-20.0f, 20.0f),
-            Random.FRandRange(0.0f, 360.0f),
-            Random.FRandRange(-20.0f, 20.0f)
-        );
-
-        FVector Scale(Random.FRandRange(0.5f, 2.0f));
-
-        FPCGPoint RockPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Forest, 1);
-        RockPoint.Density = Settings->RockDensity;
-        ApplyBiomeAttributes(RockPoint, EBiomeType::Forest, TEXT("Rock"));
-
-        OutPoints.Add(RockPoint);
-    }
+    ScatterObjects(Random, OutPoints, EBiomeType::Forest, TEXT("Rock"), 1, 200.0f, Settings->RockDensity, ForestRange, ForestRange, -20.0f, 20.0f, 0.5f, 2.0f);
 
     // Generate bushes
-    int32 NumBushes = FMath::RoundToInt(400.0f * Settings->BushDensity);
-    for (int32 i = 0; i < NumBushes; i++)
-    {
-        FVector Location(
-            Random.FRandRange(-2000.0f, 2000.0f),
-            Random.FRandRange(-2000.0f, 2000.0f),
-            0.0f
-        );
-
-        FRotator Rotation(
-            Random.FRandRange(-10.0f, 10.0f),
-            Random.FRandRange(0.0f, 360.0f),
-            Random.FRandRange(-10.0f, 10.0f)
-        );
-
-        FVector Scale(Random.FRandRange(0.8f, 1.6f));
-
-        FPCGPoint BushPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Forest, 2);
-        BushPoint.Density = Settings->BushDensity;
-        ApplyBiomeAttributes(BushPoint, EBiomeType::Forest, TEXT("Bush"));
-
-        OutPoints.Add(BushPoint);
-    }
+    ScatterObjects(Random, OutPoints, EBiomeType::Forest, TEXT("Bush"), 2, 400.0f, Settings->BushDensity, ForestRange, ForestRange, -10.0f, 10.0f, 0.8f, 1.6f);
 
     // Generate mushrooms
-    int32 NumMushrooms = FMath::RoundToInt(300.0f * Settings->MushroomDensity);
-    for (int32 i = 0; i < NumMushrooms; i++)
-    {
-        FVector Location(
-            Random.FRandRange(-2000.0f, 2000.0f),
-            Random.FRandRange(-2000.0f, 2000.0f),
-            0.0f
-        );
-
-        FRotator Rotation(
-            Random.FRandRange(-5.0f, 5.0f),
-            Random.FRandRange(0.0f, 360.0f),
-            Random.FRandRange(-5.0f, 5.0f)
-        );
-
-        FVector Scale(Random.FRandRange(0.4f, 0.9f));
-
-        FPCGPoint MushroomPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Forest, 3);
-        MushroomPoint.Density = Settings->MushroomDensity;
-        ApplyBiomeAttributes(MushroomPoint, EBiomeType::Forest, TEXT("Mushroom"));
-
-        OutPoints.Add(MushroomPoint);
-    }
+    ScatterObjects(Random, OutPoints, EBiomeType::Forest, TEXT("Mushroom"), 3, 300.0f, Settings->MushroomDensity, ForestRange, ForestRange, -5.0f, 5.0f, 0.4f, 0.9f);
 
     // Generate flowers
-    int32 NumFlowers = FMath::RoundToInt(500.0f * Settings->FlowerDensity);
-    for (int32 i = 0; i < NumFlowers; i++)
-    {
-        FVector Location(
-            Random.FRandRange(-2000.0f, 2000.0f),
-            Random.FRandRange(-2000.0f, 2000.0f),
-            0.0f
-        );
-
-        FRotator Rotation(
-            Random.FRandRange(-5.0f, 5.0f),
-            Random.FRandRange(0.0f, 360.0f),
-            Random.FRandRange(-5.0f, 5.0f)
-        );
-
-        FVector Scale(Random.FRandRange(0.3f, 0.7f));
-
-        FPCGPoint FlowerPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Forest, 5);
-        FlowerPoint.Density = Settings->FlowerDensity;
-        ApplyBiomeAttributes(FlowerPoint, EBiomeType::Forest, TEXT("Flower"));
-
-        OutPoints.Add(FlowerPoint);
-    }
+    ScatterObjects(Random, OutPoints, EBiomeType::Forest, TEXT("Flower"), 5, 500.0f, Settings->FlowerDensity, ForestRange, ForestRange, -5.0f, 5.0f, 0.3f, 0.7f);
 
     // Generate ferns
-    int32 NumFerns = FMath::RoundToInt(400.0f * Settings->FernDensity);
-    for (int32 i = 0; i < NumFerns; i++)
-    {
-        FVector Location(
-            Random.FRandRange(-2000.0f, 2000.0f),
-            Random.FRandRange(-2000.0f, 2000.0f),
-            0.0f
-        );
-
-        FRotator Rotation(
-            Random.FRandRange(-5.0f, 5.0f),
-            Random.FRandRange(0.0f, 360.0f),
-            Random.FRandRange(-5.0f, 5.0f)
-        );
-
-        FVector Scale(Random.FRandRange(0.5f, 1.2f));
-
-        FPCGPoint FernPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Forest, 6);
-        FernPoint.Density = Settings->FernDensity;
-        ApplyBiomeAttributes(FernPoint, EBiomeType::Forest, TEXT("Fern"));
-
-        OutPoints.Add(FernPoint);
-    }
+    ScatterObjects(Random, OutPoints, EBiomeType::Forest, TEXT("Fern"), 6, 400.0f, Settings->FernDensity, ForestRange, ForestRange, -5.0f, 5.0f, 0.5f, 1.2f);
 }
 
 void FAdvancedBiomeGenerationElement::GenerateUrbanLayout(FPCGContext* Context, const UUrbanPCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const
@@ -624,24 +493,7 @@ void FAdvancedBiomeGenerationElement::GenerateUrbanLayout(FPCGContext* Context, 
     }
     
     // Generate street furniture
-    int32 NumStreetFurniture = FMath::RoundToInt(200.0f * Settings->StreetFurnitureDensity);
-    for (int32 i = 0; i < NumStreetFurniture; i++)
-    {
-        FVector Location(
-            Random.FRandRange(-2200.0f, 2200.0f),
-            Random.FRandRange(-1200.0f, 1200.0f),
-            0.0f
-        );
-        
-        FRotator Rotation(0.0f, Random.FRandRange(0.0f, 360.0f), 0.0f);
-        FVector Scale(Random.FRandRange(0.5f, 1.0f));
-        
-        FPCGPoint FurniturePoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Urban, 1);
-        FurniturePoint.Density = Settings->StreetFurnitureDensity;
-        ApplyBiomeAttributes(FurniturePoint, EBiomeType::Urban, TEXT("StreetFurniture"));
-        
-        OutPoints.Add(FurniturePoint);
-    }
+    ScatterObjects(Random, OutPoints, EBiomeType::Urban, TEXT("StreetFurniture"), 1, 200.0f, Settings->StreetFurnitureDensity, FVector2D(-2200.0f, 2200.0f), FVector2D(-1200.0f, 1200.0f), 0.0f, 0.0f, 0.5f, 1.0f);
     
     // Generate green spaces
     if (Random.FRand() < Settings->GreenSpaceChance)
@@ -691,24 +543,7 @@ void FAdvancedBiomeGenerationElement::GenerateUrbanLayout(FPCGContext* Context, 
     }
 
     // Generate trash cans
-    int32 NumTrashCans = FMath::RoundToInt(150.0f * Settings->TrashCanDensity);
-    for (int32 i = 0; i < NumTrashCans; i++)
-    {
-        FVector Location(
-            Random.FRandRange(-2200.0f, 2200.0f),
-            Random.FRandRange(-1200.0f, 1200.0f),
-            0.0f
-        );
-
-        FRotator Rotation(0.0f, Random.FRandRange(0.0f, 360.0f), 0.0f);
-        FVector Scale(Random.FRandRange(0.8f, 1.2f));
-
-        FPCGPoint TrashCanPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Urban, 4);
-        TrashCanPoint.Density = Settings->TrashCanDensity;
-        ApplyBiomeAttributes(TrashCanPoint, EBiomeType::Urban, TEXT("TrashCan"));
-
-        OutPoints.Add(TrashCanPoint);
-    }
+    ScatterObjects(Random, OutPoints, EBiomeType::Urban, TEXT("TrashCan"), 4, 150.0f, Settings->TrashCanDensity, FVector2D(-2200.0f, 2200.0f), FVector2D(-1200.0f, 1200.0f), 0.0f, 0.0f, 0.8f, 1.2f);
 
     // Generate bus stops
     int32 NumBusStops = FMath::RoundToInt(30.0f * Settings->BusStopDensity);
@@ -731,112 +566,19 @@ void FAdvancedBiomeGenerationElement::GenerateUrbanLayout(FPCGContext* Context, 
     }
 
     // Generate bicycle racks
-    int32 NumBicycleRacks = FMath::RoundToInt(80.0f * Settings->BicycleRackDensity);
-    for (int32 i = 0; i < NumBicycleRacks; i++)
-    {
-        FVector Location(
-            Random.FRandRange(-2200.0f, 2200.0f),
-            Random.FRandRange(-1200.0f, 1200.0f),
-            0.0f
-        );
-
-        FRotator Rotation(0.0f, Random.FRandRange(0.0f, 360.0f), 0.0f);
-        FVector Scale(Random.FRandRange(0.9f, 1.2f));
-
-        FPCGPoint BicycleRackPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Urban, 6);
-        BicycleRackPoint.Density = Settings->BicycleRackDensity;
-        ApplyBiomeAttributes(BicycleRackPoint, EBiomeType::Urban, TEXT("BicycleRack"));
-
-        OutPoints.Add(BicycleRackPoint);
-    }
+    ScatterObjects(Random, OutPoints, EBiomeType::Urban, TEXT("BicycleRack"), 6, 80.0f, Settings->BicycleRackDensity, FVector2D(-2200.0f, 2200.0f), FVector2D(-1200.0f, 1200.0f), 0.0f, 0.0f, 0.9f, 1.2f);
 
     // Generate fire hydrants
-    int32 NumFireHydrants = FMath::RoundToInt(150.0f * Settings->FireHydrantDensity);
-    for (int32 i = 0; i < NumFireHydrants; i++)
-    {
-        FVector Location(
-            Random.FRandRange(-2500.0f, 2500.0f),
-            Random.FRandRange(-2500.0f, 2500.0f),
-            0.0f
-        );
-
-        FRotator Rotation(
-            0.0f,
-            Random.FRandRange(0.0f, 360.0f),
-            0.0f
-        );
-
-        FVector Scale(1.0f);
-
-        FPCGPoint HydrantPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Urban, 7); // Mesh index 7 for FireHydrant
-        HydrantPoint.Density = Settings->FireHydrantDensity;
-        ApplyBiomeAttributes(HydrantPoint, EBiomeType::Urban, TEXT("FireHydrant"));
-        OutPoints.Add(HydrantPoint);
-    }
+    ScatterObjects(Random, OutPoints, EBiomeType::Urban, TEXT("FireHydrant"), 7, 150.0f, Settings->FireHydrantDensity, FVector2D(-2500.0f, 2500.0f), FVector2D(-2500.0f, 2500.0f), 0.0f, 0.0f, 1.0f, 1.0f);
 
     // Generate mailboxes
-    int32 NumMailboxes = FMath::RoundToInt(100.0f * Settings->MailboxDensity);
-    for (int32 i = 0; i < NumMailboxes; i++)
-    {
-        FVector Location(
-            Random.FRandRange(-2500.0f, 2500.0f),
-            Random.FRandRange(-2500.0f, 2500.0f),
-            0.0f
-        );
-
-        FRotator Rotation(
-            0.0f,
-            Random.FRandRange(0.0f, 360.0f),
-            0.0f
-        );
-
-        FVector Scale(1.0f);
-
-        FPCGPoint MailboxPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Urban, 8); // Mesh index 8 for Mailbox
-        MailboxPoint.Density = Settings->MailboxDensity;
-        ApplyBiomeAttributes(MailboxPoint, EBiomeType::Urban, TEXT("Mailbox"));
-        OutPoints.Add(MailboxPoint);
-    }
+    ScatterObjects(Random, OutPoints, EBiomeType::Urban, TEXT("Mailbox"), 8, 100.0f, Settings->MailboxDensity, FVector2D(-2500.0f, 2500.0f), FVector2D(-2500.0f, 2500.0f), 0.0f, 0.0f, 1.0f, 1.0f);
 
     // Generate billboards
-    int32 NumBillboards = FMath::RoundToInt(50.0f * Settings->BillboardDensity);
-    for (int32 i = 0; i < NumBillboards; i++)
-    {
-        FVector Location(
-            Random.FRandRange(-2500.0f, 2500.0f),
-            Random.FRandRange(-2500.0f, 2500.0f),
-            0.0f
-        );
-
-        FRotator Rotation(0.0f, Random.FRandRange(0.0f, 360.0f), 0.0f);
-        FVector Scale(Random.FRandRange(0.8f, 1.2f));
-
-        FPCGPoint BillboardPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Urban, 7);
-        BillboardPoint.Density = Settings->BillboardDensity;
-        ApplyBiomeAttributes(BillboardPoint, EBiomeType::Urban, TEXT("Billboard"));
-
-        OutPoints.Add(BillboardPoint);
-    }
+    ScatterObjects(Random, OutPoints, EBiomeType::Urban, TEXT("Billboard"), 7, 50.0f, Settings->BillboardDensity, FVector2D(-2500.0f, 2500.0f), FVector2D(-2500.0f, 2500.0f), 0.0f, 0.0f, 0.8f, 1.2f);
 
     // Generate signposts
-    int32 NumSignposts = FMath::RoundToInt(150.0f * Settings->SignpostDensity);
-    for (int32 i = 0; i < NumSignposts; i++)
-    {
-        FVector Location(
-            Random.FRandRange(-2500.0f, 2500.0f),
-            Random.FRandRange(-2500.0f, 2500.0f),
-            0.0f
-        );
-
-        FRotator Rotation(0.0f, Random.FRandRange(0.0f, 360.0f), 0.0f);
-        FVector Scale(Random.FRandRange(0.9f, 1.1f));
-
-        FPCGPoint SignpostPoint = CreateBiomePoint(Location, Rotation, Scale, EBiomeType::Urban, 8);
-        SignpostPoint.Density = Settings->SignpostDensity;
-        ApplyBiomeAttributes(SignpostPoint, EBiomeType::Urban, TEXT("Signpost"));
-
-        OutPoints.Add(SignpostPoint);
-    }
+    ScatterObjects(Random, OutPoints, EBiomeType::Urban, TEXT("Signpost"), 8, 150.0f, Settings->SignpostDensity, FVector2D(-2500.0f, 2500.0f), FVector2D(-2500.0f, 2500.0f), 0.0f, 0.0f, 0.9f, 1.1f);
 }
 
 void FAdvancedBiomeGenerationElement::GenerateCountrysideLayout(FPCGContext* Context, const UCountrysidePCGSettings* Settings, TArray<FPCGPoint>& OutPoints) const
@@ -1398,6 +1140,33 @@ void FAdvancedBiomeGenerationElement::ApplyBiomeAttributes(FPCGPoint& Point, EBi
         default:
             Point.Color = FVector4(1.0f, 1.0f, 1.0f, 1.0f);
             break;
+    }
+}
+
+void FAdvancedBiomeGenerationElement::ScatterObjects(FRandomStream& Random, TArray<FPCGPoint>& OutPoints, EBiomeType BiomeType, const FString& ObjectType, int32 MeshIndex, float BaseCount, float Density, FVector2D RangeX, FVector2D RangeY, float MinPitchRoll, float MaxPitchRoll, float MinScale, float MaxScale) const
+{
+    int32 NumObjects = FMath::RoundToInt(BaseCount * Density);
+    for (int32 i = 0; i < NumObjects; i++)
+    {
+        FVector Location(
+            Random.FRandRange(RangeX.X, RangeX.Y),
+            Random.FRandRange(RangeY.X, RangeY.Y),
+            0.0f
+        );
+
+        FRotator Rotation(
+            Random.FRandRange(MinPitchRoll, MaxPitchRoll),
+            Random.FRandRange(0.0f, 360.0f),
+            Random.FRandRange(MinPitchRoll, MaxPitchRoll)
+        );
+
+        FVector Scale(Random.FRandRange(MinScale, MaxScale));
+
+        FPCGPoint Point = CreateBiomePoint(Location, Rotation, Scale, BiomeType, MeshIndex);
+        Point.Density = Density;
+        ApplyBiomeAttributes(Point, BiomeType, ObjectType);
+
+        OutPoints.Add(Point);
     }
 }
 

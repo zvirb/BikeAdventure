@@ -518,6 +518,9 @@ private:
 
     // Apply biome-specific material and mesh variations
     void ApplyBiomeAttributes(FPCGPoint& Point, EBiomeType BiomeType, const FString& ObjectType) const;
+
+    // Helper to scatter objects with given parameters
+    void ScatterObjects(FRandomStream& Random, TArray<FPCGPoint>& OutPoints, EBiomeType BiomeType, const FString& ObjectType, int32 MeshIndex, float BaseCount, float Density, FVector2D RangeX, FVector2D RangeY, float MinPitchRoll, float MaxPitchRoll, float MinScale, float MaxScale) const;
 };
 
 /**
