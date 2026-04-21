@@ -292,25 +292,9 @@ UBiomePCGSettings* UBiomeGenerator::GetBiomePCGSettings(EBiomeType BiomeType)
 
 void UBiomeGenerator::InitializeBiomePCGSettings()
 {
-        // Initialize PCG settings for all biome types
-        TArray<EBiomeType> AllBiomes = {
-                EBiomeType::Forest,
-                EBiomeType::Beach,
-                EBiomeType::Desert,
-                EBiomeType::Urban,
-                EBiomeType::Countryside,
-                EBiomeType::Mountains,
-                EBiomeType::Wetlands
-        };
-
-        for (EBiomeType BiomeType : AllBiomes)
-        {
-                UBiomePCGSettings* Settings = NewObject<UBiomePCGSettings>(this);
-                Settings->BiomeType = BiomeType;
-                Settings->GenerationParams = UBiomeUtilities::GetDefaultBiomeParams(BiomeType);
-
-                BiomePCGSettingsMap.Add(BiomeType, Settings);
-        }
+        // Reserve space for all biome types to avoid reallocations
+        // Objects will be created lazily in GetBiomePCGSettings
+        BiomePCGSettingsMap.Reserve(7);
 }
 
 void UBiomeGenerator::SetGenerationQuality(EBiomeGenerationQuality Quality)
